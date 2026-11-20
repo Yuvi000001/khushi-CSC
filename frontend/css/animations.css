@@ -1,0 +1,7 @@
+/* GSAP ke liye helper classes. Sab kuch default me dikhta hai; JS fail ho to bhi content gayab nahi hota. */
+.will-animate { will-change: transform, opacity; }
+.nav-links a, .side-item, .svc-tile, .quick, .btn, .chip { transition-property: transform, background-color, color, box-shadow, border-color; transition-duration: .18s; transition-timing-function: ease; }
+.side-item { transition-property: background-color, padding-left, border-color; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}

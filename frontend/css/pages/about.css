@@ -1,0 +1,11 @@
+.about-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: center; }
+.about-sub { font-size: 1.4rem; color: var(--maroon); } .about-art svg { width: 100%; height: auto; display: block; }
+.info-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: .9rem; margin-top: -1.1rem; position: relative; }
+.info-card { display: flex; gap: .8rem; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem; box-shadow: var(--shadow); }
+.info-card > span { display: grid; place-items: center; width: 42px; height: 42px; flex: none; border-radius: 10px; background: #F7E6E8; color: var(--maroon); }
+.info-card small { display: block; color: var(--muted); font-size: .78rem; } .info-card strong { font-weight: 600; font-size: .92rem; line-height: 1.4; display: block; }
+.values { padding: 2.5rem 0 1rem; }
+.values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+.value { text-align: center; padding: 1.4rem 1rem; background: var(--soft); border-radius: 14px; } .value > span { color: var(--maroon); display: inline-grid; margin-bottom: .4rem; }
+.value p { color: var(--muted); font-size: .92rem; margin: 0; }
+.quote { margin: 2.2rem 0 0; padding: 1.2rem; text-align: center; font-family: var(--head); font-size: clamp(1.3rem, 3vw, 1.8rem); color: var(--maroon); border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold); }

@@ -1,0 +1,11 @@
+.profile { padding: 1.8rem 0 2.5rem; }
+.page-title { color: var(--maroon); }
+.profile-head { display: flex; gap: 1.2rem; align-items: center; margin-bottom: 1.2rem; } .profile-head > div { flex: 1; } .profile-head h1 { margin-bottom: .2rem; font-size: 1.7rem; }
+.profile-head p { margin: 0; color: var(--muted); font-size: .92rem; display: flex; gap: .4rem; align-items: center; }
+.avatar { display: grid; place-items: center; width: 68px; height: 68px; border-radius: 50%; background: var(--maroon); color: var(--saffron); font: 700 1.8rem var(--head); flex: none; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin-bottom: 1.2rem; }
+.stat { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem; } .stat strong { display: block; font: 700 1.7rem var(--head); color: var(--maroon); line-height: 1.2; } .stat span { font-size: .85rem; color: var(--muted); }
+.app-list { list-style: none; padding: 0; margin: .8rem 0 0; }
+.app-row { display: flex; gap: .9rem; align-items: center; padding: .85rem 0; border-bottom: 1px solid var(--line); } .app-row:last-child { border-bottom: 0; }
+.app-ic { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; background: #F7E6E8; color: var(--maroon); flex: none; }
+.app-info { flex: 1; min-width: 0; } .app-info strong { display: block; } .app-info small { display: block; color: var(--muted); font-size: .8rem; line-height: 1.5; }

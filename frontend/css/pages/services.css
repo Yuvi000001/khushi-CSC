@@ -1,0 +1,21 @@
+.page-hero { background: linear-gradient(115deg, #FFFAF0, #F6E3C3); padding: 2.2rem 0 1.8rem; border-bottom: 1px solid var(--line); }
+.page-hero h1 { margin-bottom: .3rem; color: var(--maroon); } .page-hero p { max-width: 60ch; margin: 0; }
+.svc-page { padding: 1.5rem 0 2rem; }
+.search { position: relative; max-width: 460px; } .search .ic { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.search input { padding-left: 2.6rem; }
+.svc-group { margin-top: 1.8rem; }
+.svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .8rem; margin-top: .8rem; }
+.svc-tile { display: flex; flex-direction: column; align-items: center; text-align: center; gap: .2rem; text-decoration: none; color: var(--text); background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1rem .6rem; }
+.svc-tile[hidden], .svc-group[hidden] { display: none; }
+.svc-tile:hover { border-color: var(--maroon); box-shadow: var(--shadow); transform: translateY(-2px); }
+.svc-ic { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #F7E6E8; color: var(--maroon); margin-bottom: .3rem; }
+.svc-name { font-family: var(--head); font-size: .98rem; line-height: 1.4; } .svc-en { font-size: .75rem; color: var(--muted); }
+.svc-foot { margin-top: 2rem; padding: .9rem 1rem; border-left: 4px solid var(--saffron); background: #FDF3DC; font-size: .92rem; }
+.yojana { background: var(--soft); padding: 2.5rem 0 2rem; margin-top: 1rem; }
+.section-sub { color: var(--muted); }
+.yojana-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; margin-top: 1.2rem; }
+.yojana-item { display: flex; gap: 1rem; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem; }
+.yojana-ic { flex: none; width: 52px; height: 52px; } .yojana-ic svg { width: 100%; height: 100%; display: block; }
+.yojana-item h3 { margin: 0 0 .15rem; font-size: 1.02rem; } .yojana-item p { margin: 0 0 .3rem; font-size: .88rem; color: var(--muted); }
+.yojana-cat { font-size: .75rem; background: var(--soft); border-radius: 999px; padding: .1rem .6rem; color: var(--muted); }
+.yojana-note { margin-top: 1.4rem; font-size: .8rem; color: var(--muted); }

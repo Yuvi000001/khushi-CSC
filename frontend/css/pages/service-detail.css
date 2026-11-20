@@ -1,0 +1,14 @@
+.detail { padding: 1.5rem 0 2rem; }
+.crumbs { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; font-size: .88rem; color: var(--muted); margin-bottom: 1.2rem; } .crumbs a { color: var(--maroon); }
+.detail-head { display: flex; gap: 1.2rem; align-items: center; margin-bottom: 1.5rem; }
+.detail-ic { flex: none; display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; background: var(--maroon); color: var(--saffron); }
+.detail-head h1 { margin-bottom: .2rem; color: var(--maroon); } .detail-head p { margin: 0; } .detail-head .en { color: var(--muted); font-size: .9rem; }
+.detail-grid { display: grid; grid-template-columns: 1fr 300px; gap: 1.4rem; align-items: start; }
+.detail-main { display: grid; gap: 1.1rem; }
+.ticks { list-style: none; padding: 0; margin: .5rem 0 0; display: grid; gap: .55rem; }
+.ticks li { display: flex; gap: .6rem; align-items: flex-start; } .ticks .ic { color: var(--ok); margin-top: 3px; } .ticks.docs .ic { color: var(--maroon); }
+.alert { display: flex; gap: .8rem; background: #FDF3DC; border: 1px solid #F0D59A; border-radius: 10px; padding: .9rem 1rem; color: #5A3A00; } .alert p { margin: 0; } .alert .ic { margin-top: 3px; }
+.cta-row { display: flex; gap: .7rem; flex-wrap: wrap; }
+.detail-side dl { margin: .5rem 0 0; } .detail-side dt { font-size: .8rem; color: var(--muted); margin-top: .8rem; } .detail-side dd { margin: 0; font-weight: 500; }
+.detail-side { position: sticky; top: 130px; }
+.apply h2 { font-size: 1.2rem; }

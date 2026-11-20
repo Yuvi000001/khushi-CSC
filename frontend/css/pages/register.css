@@ -1,0 +1,2 @@
+/* Register page login.css ke shared .auth styles use karta hai; yahan sirf iske apne badlav */
+#reg-form .field.check span { font-size: .88rem; color: var(--muted); }
