@@ -4,8 +4,10 @@ import { renderNavbar, initNavbarEvents } from './components/navbar.js';
 import { renderFooter } from './components/footer.js';
 import { toast } from './components/notifications.js';
 import { initGsap } from './animations/gsap-config.js';
+import { initLanguage } from './i18n.js';
 
 (async function start() {
+  initLanguage();
   initGsap();
   renderFooter();
   initNavbarEvents();

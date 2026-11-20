@@ -2,6 +2,7 @@ import { CONFIG } from '../config.js';
 import { session } from '../api.js';
 import { icon } from '../icons/icons.js';
 import { esc } from '../utils.js';
+import { getLanguage } from '../i18n.js';
 
 const NAV = [
   ['/admin', 'dashboard', 'डैशबोर्ड'], ['/admin/applications', 'clipboard', 'आवेदन'], ['/admin/enquiries', 'inbox', 'पूछताछ'],
@@ -10,6 +11,7 @@ const NAV = [
 
 export function adminShell(active, title, body, headerExtra = '') {
   const u = session.user || { name: '' };
+  const language = getLanguage();
   const items = NAV.map(([p, ic, t]) => `<a href="${p}" data-link class="side-item${p === active ? ' active' : ''}"${p === active ? ' aria-current="page"' : ''}>${icon(ic, 18)}<span>${t}</span></a>`).join('');
   return `<div class="admin">
     <aside class="sidebar">
@@ -17,7 +19,7 @@ export function adminShell(active, title, body, headerExtra = '') {
       <nav class="side-nav" aria-label="एडमिन मेनू">${items}<button type="button" class="side-item side-logout" data-logout>${icon('logout', 18)}<span>लॉगआउट</span></button></nav>
     </aside>
     <section class="admin-main">
-      <header class="admin-head"><div><h1>${title}</h1><p>नमस्ते, ${esc(u.name)} • प्रशासक</p></div><div class="admin-head-extra">${headerExtra}</div></header>
+      <header class="admin-head"><div><h1>${title}</h1><p>नमस्ते, ${esc(u.name)} • प्रशासक</p></div><div class="admin-head-extra">${headerExtra}<button class="btn btn-ghost btn-sm lang-toggle" type="button" data-language-toggle aria-label="${language === 'en' ? 'Switch to Hindi' : 'Switch to English'}">${language === 'en' ? 'हिन्दी' : 'English'}</button></div></header>
       ${body}
     </section>
   </div>`;

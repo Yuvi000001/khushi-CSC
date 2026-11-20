@@ -18,7 +18,7 @@ export async function fetchServices() {
 export const serviceTile = (s) => `
   <a class="svc-tile" href="/services/${esc(s.slug)}" data-link data-cat="${esc(s.category)}" data-reveal>
     <span class="svc-ic" data-img="/images/services/${esc(s.slug)}" data-alt="${esc(s.name)}">${icon(s.icon, 26)}</span>
-    <span class="svc-name">${esc(s.name)}</span>
+    <span class="svc-name" data-i18n-en="${esc(s.nameEn || '')}">${esc(s.name)}</span>
     <span class="svc-en">${esc(s.nameEn)}</span>
   </a>`;
 

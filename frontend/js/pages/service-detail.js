@@ -37,7 +37,7 @@ export async function render({ params }) {
     <nav class="crumbs" aria-label="ब्रेडक्रंब"><a href="/" data-link>होम</a>${icon('chevron', 14)}<a href="/services" data-link>सेवाएं</a>${icon('chevron', 14)}<span aria-current="page">${esc(service.name)}</span></nav>
     <header class="detail-head">
       <span class="detail-ic">${icon(service.icon, 40)}</span>
-      <div><h1>${esc(service.name)}</h1><p>${esc(service.description)}</p><p class="en">${esc(service.nameEn)}</p></div>
+      <div><h1 data-i18n-en="${esc(service.nameEn || '')}">${esc(service.name)}</h1><p>${esc(service.description)}</p><p class="en">${esc(service.nameEn)}</p></div>
     </header>
     <div class="detail-grid">
       <div class="detail-main">

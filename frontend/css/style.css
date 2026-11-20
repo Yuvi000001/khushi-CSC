@@ -39,6 +39,8 @@ code { background: var(--soft); padding: .1rem .35rem; border-radius: 4px; font-
 .nav-links a:hover { background: var(--soft); }
 .nav-links a.active { color: var(--maroon); box-shadow: inset 0 -3px 0 var(--saffron); border-radius: 0; }
 .nav-actions { display: flex; gap: .5rem; align-items: center; }
+html[lang="en"] .svc-en,
+html[lang="en"] .detail-head .en { display: none; }
 .nav .nav-toggle { display: none; }
 
 /* Buttons */

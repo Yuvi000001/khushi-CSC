@@ -8,7 +8,7 @@ export const meta = { title: '', desc: 'खुशी ऑनलाइन से�
 export async function render() {
   const services = await fetchServices();
   const quick = services.slice(0, 8).map((s) => `
-    <a class="quick" href="/services/${esc(s.slug)}" data-link><span class="quick-ic">${icon(s.icon, 24)}</span><span>${esc(s.name)}</span></a>`).join('');
+    <a class="quick" href="/services/${esc(s.slug)}" data-link><span class="quick-ic">${icon(s.icon, 24)}</span><span data-i18n-en="${esc(s.nameEn || '')}">${esc(s.name)}</span></a>`).join('');
   return `
   <section class="hero">
     <div class="container hero-grid">

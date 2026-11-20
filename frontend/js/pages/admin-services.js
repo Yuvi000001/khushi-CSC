@@ -11,7 +11,7 @@ let items = [];
 const grid = () => `<div class="svc-admin-grid">${items.map((s) => `
   <article class="svc-admin${s.active ? '' : ' off'}" data-id="${s._id}">
     <span class="svc-ic">${icon(s.icon, 24)}</span>
-    <div><h3>${esc(s.name)}</h3><small>${esc(CATS[s.category] || '')}</small><small>${s.active ? 'चालू' : 'बंद'}</small></div>
+    <div><h3 data-i18n-en="${esc(s.nameEn || '')}">${esc(s.name)}</h3><small>${esc(CATS[s.category] || '')}</small><small>${s.active ? 'चालू' : 'बंद'}</small></div>
     <div class="actions"><button class="icon-btn round" data-act="toggle" aria-label="चालू / बंद करें">${icon('toggle', 16)}</button><button class="icon-btn round" data-act="edit" aria-label="बदलें">${icon('edit', 16)}</button><button class="icon-btn round danger" data-act="del" aria-label="हटाएं">${icon('trash', 16)}</button></div>
   </article>`).join('') || '<p class="empty">कोई सेवा नहीं है।</p>'}</div>`;
 
