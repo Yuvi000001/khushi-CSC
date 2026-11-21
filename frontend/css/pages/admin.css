@@ -50,7 +50,7 @@
 .upload-form { display: flex; gap: .7rem; align-items: center; flex-wrap: wrap; margin: .6rem 0; } .upload-form select { width: auto; min-width: 200px; } .upload-form input[type="file"] { width: auto; flex: 1; min-width: 180px; padding: .5rem; }
 @media (max-width: 860px) {
   /* Sidebar upar ek scrollable tab bar ban jata hai */
-  .admin { grid-template-columns: 1fr; }
+  .admin { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .sidebar { position: static; height: auto; padding: .6rem 0 0; }
   .side-brand { padding: 0 1rem .6rem; margin-bottom: 0; border: 0; }
   .side-nav { flex-direction: row; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
