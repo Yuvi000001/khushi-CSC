@@ -55,6 +55,7 @@ export async function render({ params }) {
           <dt>संचालक</dt><dd>${CONFIG.OWNER}</dd>
           <dt>पता</dt><dd>${CONFIG.ADDRESS}</dd>
           <dt>मोबाइल</dt><dd><a href="${CONFIG.CALL}">${CONFIG.MOBILE}</a></dd>
+          <dt>ईमेल</dt><dd><a href="mailto:${CONFIG.EMAIL}">${CONFIG.EMAIL}</a></dd>
           ${CONFIG.TIMING ? `<dt>समय</dt><dd>${esc(CONFIG.TIMING)}</dd>` : ''}
         </dl>
       </aside>

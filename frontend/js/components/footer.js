@@ -7,7 +7,7 @@ export function renderFooter() {
     <div class="container footer-grid">
       <div>
         <h3>${CONFIG.NAME_HI}</h3>
-        <p>CSC एवं MP Online की सेवाएं - सरल और भरोसेमंद तरीके से।</p>
+        <p>CSC एवं MP Online की सेवाएं - सरल और भरोसेमंद तरीके से।<br>ईमेल: <a href="mailto:${CONFIG.EMAIL}">${CONFIG.EMAIL}</a></p>
         <p class="muted-light">CSC ID : ${CONFIG.CSC_ID}<br>संचालक : ${CONFIG.OWNER}</p>
       </div>
       <div><h4>जल्दी पहुँचें</h4><ul>

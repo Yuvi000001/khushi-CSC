@@ -2,10 +2,10 @@ import { CONFIG } from '../config.js';
 import { icon } from '../icons/icons.js';
 import { useRealImages } from '../components/service-card.js';
 
-export const meta = { title: 'हमारे बारे में', desc: 'खुशी ऑनलाइन सेंटर - विदिशा के राम द्वारा में CSC और MP Online सेवाओं का केंद्र। संचालक: Kop Singh Malviya।' };
+export const meta = { title: 'हमारे बारे में', desc: 'खुशी ऑनलाइन सेंटर - विदिशा के राम द्वारा में CSC और MP Online सेवाओं का केंद्र। संचालक: Kop Singh Malviya। ईमेल: khushionlinecentre11@gmail.com' };
 
 export function render() {
-  const info = [['id', 'CSC ID', CONFIG.CSC_ID], ['user', 'संचालक', CONFIG.OWNER], ['map', 'स्थान', CONFIG.ADDRESS], ['phone', 'मोबाइल', CONFIG.MOBILE]];
+  const info = [['id', 'CSC ID', CONFIG.CSC_ID], ['user', 'संचालक', CONFIG.OWNER], ['map', 'स्थान', CONFIG.ADDRESS], ['phone', 'मोबाइल', CONFIG.MOBILE], ['mail', 'ईमेल', CONFIG.EMAIL]];
   const values = [['check', 'सुविधा', 'एक ही जगह पर कई सेवाएं, कम भागदौड़।'], ['heart', 'स्वच्छ सेवा', 'साफ़ और ईमानदार प्रक्रिया, बिना किसी अतिरिक्त दबाव के।'], ['shield', 'विश्वसनीय सहायता', 'आपकी जानकारी गोपनीय रहती है; हम OTP या PIN कभी नहीं मांगते।']];
   return `
   <section class="page-hero about-hero"><div class="container about-grid">

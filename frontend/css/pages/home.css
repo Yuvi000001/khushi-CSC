@@ -16,7 +16,7 @@
 .home-ad-track { position: absolute; top: 0; left: 0; display: flex; width: 200%; height: 100%; transform: translateX(0); transition: transform var(--home-ad-slide-duration, 1.2s) cubic-bezier(.4, 0, .2, 1); will-change: transform; }
 .home-ad-track img { flex: 0 0 50%; width: 50%; }
 .strip { background: var(--maroon-deep); color: #fff; }
-.strip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: .9rem 0; }
+.strip-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; padding: .9rem 0; }
 .strip-grid > * { display: flex; align-items: center; gap: .6rem; color: #fff; text-decoration: none; font-size: .92rem; } .strip-grid .ic { color: var(--saffron); }
 .how { display: grid; grid-template-columns: 1.4fr 1fr; gap: 2rem; padding: 3rem 0 1rem; align-items: start; }
 .steps { list-style: none; padding: 0; margin: 1rem 0 0; display: flex; align-items: center; gap: .6rem; }

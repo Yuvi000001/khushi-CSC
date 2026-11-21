@@ -1,4 +1,3 @@
-import { CONFIG } from '../config.js';
 import { login } from '../api.js';
 import { logo } from '../icons/icons.js';
 import { rules } from '../utils.js';
@@ -21,7 +20,6 @@ export function render() {
       <button class="btn btn-primary btn-block" type="submit">लॉगिन करें</button>
     </form>
     <p class="alt">खाता नहीं है? <a href="/register" data-link>रजिस्टर करें</a></p>
-    ${CONFIG.SHOW_SETUP_HINT ? `<div class="hint"><strong>टेस्टिंग के लिए</strong><p>पहला प्रशासक खाता बैकएंड फ़ोल्डर में <code>npm run seed:admin</code> चलाकर बनता है। उपयोगकर्ता खाता "रजिस्टर करें" से बनाएं। (live करने से पहले config.js में SHOW_SETUP_HINT बंद करें।)</p></div>` : ''}
   </div></section>`;
 }
 

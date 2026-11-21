@@ -4,7 +4,7 @@ import { icon } from '../icons/icons.js';
 import { fetchServices, serviceTile, chipsBar, bindFilter, useRealImages } from '../components/service-card.js';
 import { esc } from '../utils.js';
 
-export const meta = { title: '', desc: 'खुशी ऑनलाइन सेंटर, विदिशा - CSC एवं MP Online की सेवाएं: समग्र आईडी, राशन कार्ड, पैन कार्ड, पीएम किसान, आयुष्मान कार्ड और अन्य।' };
+export const meta = { title: '', desc: `खुशी ऑनलाइन सेंटर, विदिशा - CSC एवं MP Online की सेवाएं: समग्र आईडी, राशन कार्ड, पैन कार्ड, पीएम किसान, आयुष्मान कार्ड और अन्य। ईमेल: ${CONFIG.EMAIL}` };
 let adSlides = [];
 let adIntervalSeconds = 2;
 let slideTimer = null;
@@ -60,6 +60,7 @@ export async function render() {
   <section class="strip" aria-label="संपर्क जानकारी">
     <div class="container strip-grid">
       <a href="${CONFIG.CALL}">${icon('phone', 20)}<span>${CONFIG.MOBILE}</span></a>
+      <a href="mailto:${CONFIG.EMAIL}">${icon('mail', 20)}<span>${CONFIG.EMAIL}</span></a>
       <a href="${CONFIG.MAPS}" target="_blank" rel="noopener">${icon('map', 20)}<span>${CONFIG.ADDRESS_SHORT}</span></a>
       <span>${icon('globe', 20)}<span>MP Online</span></span>
       <span>${icon('shield', 20)}<span>Digital India</span></span>

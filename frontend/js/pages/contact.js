@@ -5,7 +5,7 @@ import { rules } from '../utils.js';
 import { field, submitForm } from '../components/form.js';
 import { toast } from '../components/notifications.js';
 
-export const meta = { title: 'संपर्क करें', desc: 'खुशी ऑनलाइन सेंटर से संपर्क करें - मोबाइल 7470630571, khushionlinecentre11@gmail.com, राम द्वारा, विदिशा।' };
+export const meta = { title: 'संपर्क करें', desc: `खुशी ऑनलाइन सेंटर से संपर्क करें - मोबाइल ${CONFIG.MOBILE}, ईमेल ${CONFIG.EMAIL}, राम द्वारा, विदिशा।` };
 
 export function render() {
   const rows = [

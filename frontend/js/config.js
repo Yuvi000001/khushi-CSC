@@ -28,6 +28,4 @@ export const CONFIG = {
   // images/ folder me asli photo/logo milne par apne aap use hote hain (neeche README dekhein)
   USE_REAL_IMAGES: true,
 
-  // Login page par admin banane ka hint dikhana (live karne se pehle false kar dein)
-  SHOW_SETUP_HINT: true,
 };

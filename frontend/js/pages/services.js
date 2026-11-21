@@ -1,7 +1,8 @@
+import { CONFIG } from '../config.js';
 import { icon } from '../icons/icons.js';
 import { fetchServices, fetchSchemes, serviceTile, chipsBar, bindFilter, useRealImages, CATS, yojanaSection } from '../components/service-card.js';
 
-export const meta = { title: 'हमारी सेवाएं', desc: 'CSC और MP Online की सभी सेवाएं - सरकारी, पहचान एवं वित्तीय, डिजिटल और इंटरनेट कैफे सेवाएं।' };
+export const meta = { title: 'हमारी सेवाएं', desc: `CSC और MP Online की सभी सेवाएं - सरकारी, पहचान एवं वित्तीय, डिजिटल और इंटरनेट कैफे सेवाएं। ईमेल: ${CONFIG.EMAIL}` };
 
 export async function render() {
   const [services, schemes] = await Promise.all([fetchServices(), fetchSchemes()]);
