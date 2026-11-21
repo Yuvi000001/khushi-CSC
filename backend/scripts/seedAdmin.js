@@ -1,4 +1,3 @@
-// Pehla admin banane ke liye: .env me ADMIN_* bharein, phir `npm run seed:admin`
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
