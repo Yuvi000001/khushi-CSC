@@ -8,7 +8,7 @@
 //  SITE_URL      -> Aapki website ka domain (SEO / share link ke liye).
 // ============================================================
 export const CONFIG = {
-  API_BASE_URL: '',
+  API_BASE_URL: 'https://khushi-csc.onrender.com',
   SITE_URL: 'https://www.aapkadomain.com',
 
   // Kendra ki jaankari
