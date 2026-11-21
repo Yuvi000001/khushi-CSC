@@ -27,7 +27,7 @@ async function load(root) {
     items = data.items;
     const rows = items.map((a) => `<tr data-id="${a._id}"><td data-l="संदर्भ">${esc(a.reference)}</td><td data-l="नाम">${esc(a.applicantName)}<small>${esc(a.applicantMobile)}</small></td><td data-l="सेवा">${esc(a.serviceId ? a.serviceId.name : '-')}</td><td data-l="स्थिति">${badge(a.status)}</td><td data-l="तारीख़">${fmtDate(a.createdAt)}</td>
       <td class="actions"><button class="icon-btn round" data-act="view" aria-label="देखें">${icon('eye', 16)}</button><button class="icon-btn round" data-act="edit" aria-label="स्थिति बदलें">${icon('edit', 16)}</button><button class="icon-btn round danger" data-act="del" aria-label="हटाएं">${icon('trash', 16)}</button></td></tr>`).join('');
-    box.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>संदर्भ</th><th>नाम</th><th>सेवा</th><th>स्थिति</th><th>तारीख़</th><th>कार्रवाई</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="empty">कोई आवेदन नहीं मिला।</td></tr>'}</tbody></table></div>
+    box.innerHTML = `<div class="table-wrap"><table class="table applications-table"><thead><tr><th>संदर्भ</th><th>नाम</th><th>सेवा</th><th>स्थिति</th><th>तारीख़</th><th>कार्रवाई</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="empty">कोई आवेदन नहीं मिला।</td></tr>'}</tbody></table></div>
       <div class="pager"><span>कुल: ${data.total}</span><div><button class="btn btn-ghost btn-sm" data-p="-1" ${data.page <= 1 ? 'disabled' : ''}>पिछला</button><span>${data.page} / ${data.pages}</span><button class="btn btn-ghost btn-sm" data-p="1" ${data.page >= data.pages ? 'disabled' : ''}>अगला</button></div></div>`;
   } catch (e) { box.innerHTML = `<p class="empty">${esc(e.message)}</p>`; }
 }

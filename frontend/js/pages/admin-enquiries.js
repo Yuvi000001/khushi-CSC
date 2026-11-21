@@ -6,8 +6,8 @@ import { esc, badge, fmtDate, STATUS } from '../utils.js';
 export const meta = { title: 'पूछताछ', desc: '' };
 let items = [];
 
-const table = () => `<div class="table-wrap"><table class="table"><thead><tr><th>नाम</th><th>मोबाइल</th><th>संदेश</th><th>स्थिति</th><th>तारीख़</th></tr></thead><tbody>
-  ${items.map((m) => `<tr class="clickable" data-id="${m._id}" tabindex="0"><td data-l="नाम">${esc(m.name)}</td><td data-l="मोबाइल">${esc(m.mobile)}</td><td data-l="संदेश" class="clip">${esc(m.message)}</td><td data-l="स्थिति">${badge(m.status)}</td><td data-l="तारीख़">${fmtDate(m.createdAt)}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">अभी कोई पूछताछ नहीं है।</td></tr>'}</tbody></table></div>`;
+const table = () => `<div class="table-wrap"><table class="table enquiry-table"><thead><tr><th>नाम</th><th>मोबाइल</th><th>संदेश</th><th>स्थिति</th><th>तारीख़</th></tr></thead><tbody>
+  ${items.map((m) => `<tr class="clickable" data-id="${m._id}" tabindex="0"><td data-l="नाम">${esc(m.name)}</td><td data-l="मोबाइल">${esc(m.mobile)}</td><td data-l="संदेश" class="clip"><span>${esc(m.message)}</span></td><td data-l="स्थिति">${badge(m.status)}</td><td data-l="तारीख़">${fmtDate(m.createdAt)}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">अभी कोई पूछताछ नहीं है।</td></tr>'}</tbody></table></div>`;
 
 export async function render() {
   let inner;

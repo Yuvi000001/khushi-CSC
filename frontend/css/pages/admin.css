@@ -87,6 +87,14 @@
   .svc-admin, .scheme-admin { gap: .6rem; padding: .7rem; }
   .scheme-admin-image { width: 44px; height: 44px; }
   .scheme-admin-info { min-width: 0; }
+  .enquiry-table tr.clickable { padding: .5rem .7rem; }
+  .enquiry-table td[data-l="नाम"] { color: var(--maroon-deep); font-weight: 600; }
+  .enquiry-table td[data-l="संदेश"] { align-items: flex-start; }
+  .enquiry-table td.clip { max-width: none; overflow: visible; text-align: left; white-space: normal; }
+  .enquiry-table td.clip span { display: -webkit-box; flex: 1; min-width: 0; max-width: 65%; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+  .applications-table .actions { gap: .5rem; }
+  .applications-table .actions .icon-btn.round { min-width: 40px; min-height: 40px; }
+  .applications-table .actions .ic { width: 18px; height: 18px; }
   .scheme-form-grid { grid-template-columns: 1fr; }
   .download-form-upload { grid-template-columns: 1fr; }
 }
