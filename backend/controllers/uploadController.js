@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const { Readable } = require('stream');
 const { pipeline } = require('stream/promises');
 
-const FOLDERS = { profiles: 'khushi/profiles', gallery: 'khushi/gallery', documents: 'khushi/documents', forms: 'khushi/forms' };
+const FOLDERS = { profiles: 'khushi/profiles', gallery: 'khushi/gallery', documents: 'khushi/documents', forms: 'khushi/forms', ads: 'khushi/ads' };
 const PREVIEW_MIME_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp']);
 const MAGIC = {
   'image/jpeg': (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
@@ -58,8 +58,7 @@ exports.upload = async (req, res, next) => {
     const f = req.file;
     if (!f) return res.status(400).json({ success: false, message: 'फ़ाइल चुनें।' });
     const kind = FOLDERS[req.body.kind] ? req.body.kind : 'documents';
-    if (kind === 'gallery' && req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'अनुमति नहीं है।' });
-    if ((kind === 'forms' && req.user.role !== 'admin')) return res.status(403).json({ success: false, message: 'अनुमति नहीं है।' });
+    if (['gallery', 'forms', 'ads'].includes(kind) && req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'अनुमति नहीं है।' });
     const ext = path.extname(f.originalname).toLowerCase();
     if (kind === 'forms' && !DOCUMENT_EXTENSIONS.has(ext)) {
       return res.status(400).json({ success: false, message: 'PDF, Word, Excel, PowerPoint, OpenDocument, RTF, TXT या CSV फ़ाइल चुनें।' });
@@ -72,6 +71,7 @@ exports.upload = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'फ़ाइल की सामग्री मान्य नहीं है।' });
     }
     const isImage = f.mimetype.startsWith('image/');
+    if (kind === 'ads' && !isImage) return res.status(400).json({ success: false, message: 'होम स्लाइड के लिए फोटो चुनें।' });
     if (isImage && f.size > 5 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फोटो 5MB से छोटी होनी चाहिए।' });
     if (kind === 'forms' && f.size > 20 * 1024 * 1024) return res.status(400).json({ success: false, message: 'दस्तावेज़ 20MB से छोटी होनी चाहिए।' });
     if (kind === 'documents' && f.size > 10 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फ़ाइल 10MB से छोटी होनी चाहिए।' });
