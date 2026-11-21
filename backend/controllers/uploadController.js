@@ -11,6 +11,10 @@ const { pipeline } = require('stream/promises');
 
 const FOLDERS = { profiles: 'khushi/profiles', gallery: 'khushi/gallery', documents: 'khushi/documents', forms: 'khushi/forms', ads: 'khushi/ads' };
 const PREVIEW_MIME_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp']);
+const AD_IMAGE_EXTENSIONS = new Set([
+  '.jpg', '.jpeg', '.jpe', '.jfif', '.png', '.webp', '.gif', '.bmp', '.dib',
+  '.tif', '.tiff', '.avif', '.heic', '.heif', '.svg', '.ico', '.jp2', '.j2k',
+]);
 const MAGIC = {
   'image/jpeg': (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
   'image/png': (b) => b.slice(0, 4).toString('hex') === '89504e47',
@@ -63,29 +67,45 @@ exports.upload = async (req, res, next) => {
     if (kind === 'forms' && !DOCUMENT_EXTENSIONS.has(ext)) {
       return res.status(400).json({ success: false, message: 'PDF, Word, Excel, PowerPoint, OpenDocument, RTF, TXT या CSV फ़ाइल चुनें।' });
     }
+    const isImage = f.mimetype.startsWith('image/');
+    const isAdImage = kind === 'ads' && (isImage || (AD_IMAGE_EXTENSIONS.has(ext) && (!f.mimetype || f.mimetype === 'application/octet-stream')));
     const magic = MAGIC[f.mimetype];
     const invalidContent = kind === 'forms'
       ? !FORM_SIGNATURES[ext](f.buffer)
-      : (!magic || !magic(f.buffer));
+      : kind === 'ads'
+        ? !isAdImage
+        : (!magic || !magic(f.buffer));
     if (invalidContent) {
       return res.status(400).json({ success: false, message: 'फ़ाइल की सामग्री मान्य नहीं है।' });
     }
-    const isImage = f.mimetype.startsWith('image/');
-    if (kind === 'ads' && !isImage) return res.status(400).json({ success: false, message: 'होम स्लाइड के लिए फोटो चुनें।' });
-    if (isImage && f.size > 5 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फोटो 5MB से छोटी होनी चाहिए।' });
+    if (isAdImage && f.size > 5 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फोटो 5MB से छोटी होनी चाहिए।' });
+    if (isImage && kind !== 'ads' && f.size > 5 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फोटो 5MB से छोटी होनी चाहिए।' });
     if (kind === 'forms' && f.size > 20 * 1024 * 1024) return res.status(400).json({ success: false, message: 'दस्तावेज़ 20MB से छोटी होनी चाहिए।' });
     if (kind === 'documents' && f.size > 10 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फ़ाइल 10MB से छोटी होनी चाहिए।' });
     const isForm = kind === 'forms';
     const isPrivate = kind === 'documents' || isForm;
 
-    result = await stream(f.buffer, {
-      folder: FOLDERS[kind],
-      resource_type: isForm ? 'raw' : 'auto',
-      type: isPrivate ? 'authenticated' : 'upload',
-      ...(isForm ? {
-        public_id: `${Date.now()}-${crypto.randomBytes(5).toString('hex')}${ext}`,
-      } : {}),
-    });
+    try {
+      result = await stream(f.buffer, {
+        folder: FOLDERS[kind],
+        resource_type: isForm ? 'raw' : 'auto',
+        type: isPrivate ? 'authenticated' : 'upload',
+        ...(isForm ? {
+          public_id: `${Date.now()}-${crypto.randomBytes(5).toString('hex')}${ext}`,
+        } : {}),
+      });
+    } catch (error) {
+      if (kind === 'ads' && [400, 415].includes(error.http_code)) {
+        return res.status(400).json({ success: false, message: 'यह फोटो फ़ॉर्मेट स्वीकार नहीं हुआ। कोई दूसरा image format चुनें।' });
+      }
+      throw error;
+    }
+    if (kind === 'ads' && result.resource_type !== 'image') {
+      const uploaded = result;
+      result = null;
+      await cloudinary.uploader.destroy(uploaded.public_id, { resource_type: uploaded.resource_type, type: uploaded.type });
+      return res.status(400).json({ success: false, message: 'यह image format होम स्लाइड में नहीं दिख सकता। कोई दूसरा फोटो फ़ॉर्मेट चुनें।' });
+    }
     const doc = await UploadedFile.create({
       ownerId: req.user._id,
       cloudinaryPublicId: result.public_id,

@@ -1,6 +1,9 @@
 const multer = require('multer');
 const path = require('path');
-const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const IMAGE_EXTENSIONS = new Set([
+  '.jpg', '.jpeg', '.jpe', '.jfif', '.png', '.webp', '.gif', '.bmp', '.dib',
+  '.tif', '.tiff', '.avif', '.heic', '.heif', '.svg', '.ico', '.jp2', '.j2k',
+]);
 const DOCUMENT_TYPES = {
   '.pdf': new Set(['application/pdf', 'application/octet-stream']),
   '.doc': new Set(['application/msword', 'application/octet-stream']),
@@ -21,7 +24,9 @@ module.exports = multer({
   limits: { fileSize: 20 * 1024 * 1024, files: 1 },
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    const accepted = IMAGE_TYPES.has(file.mimetype)
+    const mimeType = file.mimetype || '';
+    const extensionFallback = IMAGE_EXTENSIONS.has(ext) && (!mimeType || mimeType === 'application/octet-stream');
+    const accepted = mimeType.startsWith('image/') || extensionFallback
       || (DOCUMENT_TYPES[ext] && DOCUMENT_TYPES[ext].has(file.mimetype));
     if (!accepted) return cb(Object.assign(new Error('JPG, PNG, WebP या मान्य PDF/Word/Excel/PowerPoint दस्तावेज़ चुनें।'), { status: 400 }));
     cb(null, true);
