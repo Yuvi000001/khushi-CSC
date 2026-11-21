@@ -54,6 +54,7 @@ router.patch('/services/:id', svc(true), validate, c.updateService);
 router.delete('/services/:id', c.deleteService);
 router.get('/schemes', schemes.adminList);
 router.get('/ads', ads.adminList);
+router.patch('/ads/settings', [body('intervalSeconds').isInt({ min: 1, max: 10 }).withMessage('स्लाइड का समय 1 से 10 सेकंड के बीच चुनें।')], validate, ads.updateSettings);
 router.post('/schemes', schemeFields(false), validate, schemes.create);
 router.patch('/schemes/:slug', schemeFields(true), validate, schemes.update);
 router.delete('/schemes/:slug', schemes.remove);
