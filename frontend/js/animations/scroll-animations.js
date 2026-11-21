@@ -11,7 +11,7 @@ export function initPageAnimations(root) {
       tl.from(h1, { opacity: 0, y: 28, rotate: 1.2, duration: 0.7 })
         .from(q('.hero-sub, .hero-badges, .hero-cta'), { opacity: 0, y: 16, duration: 0.5, stagger: 0.12 }, '-=0.35');
       if (cond.desktop) {
-        const art = q('.hero-art');
+        const art = q('.hero-art:not(.home-ad-carousel)');
         if (art.length) gsap.to(art, { y: -8, duration: 3, ease: 'sine.inOut', repeat: -1, yoyo: true });
       }
     }

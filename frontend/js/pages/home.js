@@ -100,27 +100,12 @@ export function mount(root) {
   const frame = root.querySelector('.home-ad-carousel');
   if (!frame) return;
   const track = root.querySelector('[data-home-ad-track]');
-  let transitioning = false;
-  const activeImage = () => track ? track.children[transitioning ? 1 : 0] : frame.querySelector('img');
-  const setFrameHeight = (image) => {
-    if (!image || !image.naturalWidth || !frame.clientWidth) return;
-    frame.style.height = `${Math.round(frame.clientWidth * image.naturalHeight / image.naturalWidth)}px`;
-  };
-  const initialImage = activeImage();
-  const onInitialLoad = () => setFrameHeight(activeImage());
-  if (initialImage.complete) setFrameHeight(initialImage);
-  else initialImage.addEventListener('load', onInitialLoad);
-  const onResize = () => setFrameHeight(activeImage());
-  window.addEventListener('resize', onResize);
   if (!track || adSlides.length < 2) {
-    slideCleanup = () => {
-      initialImage.removeEventListener('load', onInitialLoad);
-      window.removeEventListener('resize', onResize);
-    };
     return;
   }
   frame.style.setProperty('--home-ad-slide-duration', `${Math.min(1200, adIntervalSeconds * 700)}ms`);
   let index = 0;
+  let transitioning = false;
   const finishSlide = (event) => {
     if (event && (event.target !== track || event.propertyName !== 'transform')) return;
     if (!transitioning) return;
@@ -139,14 +124,11 @@ export function mount(root) {
   const beforeSlide = () => {
     const next = track.children[1];
     if (!next.complete || !next.naturalWidth) return;
-    setFrameHeight(next);
     transitioning = true;
     track.style.transform = 'translateX(-50%)';
   };
   track.addEventListener('transitionend', finishSlide);
   slideCleanup = () => {
-    initialImage.removeEventListener('load', onInitialLoad);
-    window.removeEventListener('resize', onResize);
     track.removeEventListener('transitionend', finishSlide);
     frame.style.removeProperty('--home-ad-slide-duration');
   };
