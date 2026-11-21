@@ -6,6 +6,7 @@ import { esc, fmtDate } from '../utils.js';
 
 export const meta = { title: 'होम विज्ञापन', desc: '' };
 let items = [];
+let intervalSeconds = 2;
 const IMAGE_EXTENSIONS = new Set([
   'jpg', 'jpeg', 'jpe', 'jfif', 'png', 'webp', 'gif', 'bmp', 'dib',
   'tif', 'tiff', 'avif', 'heic', 'heif', 'svg', 'ico', 'jp2', 'j2k',
@@ -25,21 +26,58 @@ async function reload(root) {
 
 export async function render() {
   let list;
-  try { items = (await api('/admin/ads')).data; list = grid(); }
-  catch (error) { list = `<p class="empty">${esc(error.message)}</p>`; }
+  let intervalMessage = '';
+  let settingsReady = false;
+  intervalSeconds = 2;
+  try {
+    const response = await api('/admin/ads');
+    items = response.data;
+    list = grid();
+    if (Number.isInteger(response.intervalSeconds) && response.intervalSeconds >= 1 && response.intervalSeconds <= 10) {
+      intervalSeconds = response.intervalSeconds;
+      settingsReady = true;
+    } else intervalMessage = 'समय सेटिंग उपलब्ध नहीं है। Backend अपडेट करके पेज दोबारा खोलें।';
+  } catch (error) {
+    list = `<p class="empty">${esc(error.message)}</p>`;
+    intervalMessage = error.message;
+  }
+  const options = Array.from({ length: 10 }, (_, index) => index + 1)
+    .map((seconds) => `<option value="${seconds}"${seconds === intervalSeconds ? ' selected' : ''}>${seconds} सेकंड</option>`).join('');
   return adminShell('/admin/ads', 'होम विज्ञापन', `
     <section class="panel">
       <h2>होम स्लाइड में फोटो जोड़ें</h2>
+      <form id="ad-interval-form" class="ad-interval-form">
+        <label class="field"><span>हर फोटो कितने सेकंड दिखे?</span><select name="intervalSeconds"${settingsReady ? '' : ' disabled'}>${options}</select></label>
+        <button class="btn btn-ghost btn-sm" type="submit"${settingsReady ? '' : ' disabled'}>समय सेव करें</button>
+      </form>
+      <p id="ad-interval-status" class="muted small">${settingsReady ? `अभी ${intervalSeconds} सेकंड का समय सेव है।` : esc(intervalMessage)}</p>
       <form id="ad-upload" class="ad-upload-form" novalidate>
         <label class="field"><span>एक साथ कई फोटो चुनें</span><input type="file" name="images" accept="image/*,.heic,.heif,.avif,.tif,.tiff,.bmp,.dib,.svg,.ico,.jp2,.j2k" multiple required></label>
         <button class="btn btn-primary btn-sm" type="submit">${icon('upload', 16)}होम पर जोड़ें</button>
       </form>
-      <p class="muted small">सभी सामान्य फोटो फ़ॉर्मेट चुन सकते हैं; हर फोटो अधिकतम 5 MB। फोटो 2 सेकंड के अंतर से दिखाई देंगी। हटाने पर स्लाइड से भी हट जाएगी।</p>
+      <p class="muted small">सभी सामान्य फोटो फ़ॉर्मेट चुन सकते हैं; हर फोटो अधिकतम 5 MB। फोटो सेव की गई timing के अनुसार बदलेंगी। हटाने पर स्लाइड से भी हट जाएगी।</p>
     </section>
     <section class="panel"><div id="ad-list">${list}</div></section>`);
 }
 
 export function mount(root) {
+  const intervalForm = root.querySelector('#ad-interval-form');
+  intervalForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const seconds = Number(intervalForm.elements.intervalSeconds.value);
+    if (!Number.isInteger(seconds) || seconds < 1 || seconds > 10) return toast('1 से 10 सेकंड के बीच समय चुनें।', 'error');
+    const button = intervalForm.querySelector('[type="submit"]');
+    button.disabled = true;
+    try {
+      const result = await api('/admin/ads/settings', { method: 'PATCH', body: { intervalSeconds: seconds } });
+      intervalSeconds = result.data.intervalSeconds;
+      intervalForm.elements.intervalSeconds.value = String(intervalSeconds);
+      root.querySelector('#ad-interval-status').textContent = `अभी ${intervalSeconds} सेकंड का समय सेव है।`;
+      toast(result.message);
+    } catch (error) { toast(error.message, 'error'); }
+    finally { button.disabled = false; }
+  });
+
   const form = root.querySelector('#ad-upload');
   form.addEventListener('submit', async (event) => {
     event.preventDefault();

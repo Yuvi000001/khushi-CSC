@@ -47,6 +47,9 @@
 .download-form-upload .field span { display: block; font-weight: 500; font-size: .92rem; margin-bottom: .3rem; }
 .download-form-upload input[type="file"] { padding: .5rem; }
 .download-form-upload > button { justify-self: start; margin-bottom: .7rem; }
+.ad-interval-form { display: flex; align-items: end; gap: .7rem; flex-wrap: wrap; }
+.ad-interval-form .field { min-width: 180px; margin-bottom: .7rem; }
+.ad-interval-form .field span { display: block; font-weight: 500; font-size: .92rem; margin-bottom: .3rem; }
 .upload-form { display: flex; gap: .7rem; align-items: center; flex-wrap: wrap; margin: .6rem 0; } .upload-form select { width: auto; min-width: 200px; } .upload-form input[type="file"] { width: auto; flex: 1; min-width: 180px; padding: .5rem; }
 .ad-upload-form { display: flex; align-items: end; gap: .7rem; flex-wrap: wrap; }
 .ad-upload-form .field { flex: 1; min-width: 220px; margin-bottom: .7rem; }

@@ -17,6 +17,7 @@ export const CONFIG = {
   CSC_ID: '241114270010',
   OWNER: 'Kop Singh Malviya',
   MOBILE: '7470630571',
+  EMAIL: 'khushionlinecentre11@gmail.com',
   WHATSAPP: 'https://wa.me/917470630571',
   CALL: 'tel:7470630571',
   ADDRESS: 'राम द्वारा, विदिशा, मध्य प्रदेश, India',

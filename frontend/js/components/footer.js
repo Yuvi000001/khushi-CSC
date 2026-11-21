@@ -18,6 +18,7 @@ export function renderFooter() {
         <li><a href="/services/pan" data-link>पैन कार्ड</a></li><li><a href="/services/pmkisan" data-link>पीएम किसान</a></li></ul></div>
       <div><h4>संपर्क</h4><ul class="contact-list">
         <li>${icon('phone', 16)}<a href="${CONFIG.CALL}">${CONFIG.MOBILE}</a></li>
+        <li>${icon('mail', 16)}<a href="mailto:${CONFIG.EMAIL}">${CONFIG.EMAIL}</a></li>
         <li>${icon('whatsapp', 16)}<a href="${CONFIG.WHATSAPP}" target="_blank" rel="noopener">WhatsApp</a></li>
         <li>${icon('map', 16)}<a href="${CONFIG.MAPS}" target="_blank" rel="noopener">${CONFIG.ADDRESS_SHORT}</a></li></ul></div>
     </div>

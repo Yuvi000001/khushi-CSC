@@ -6,21 +6,32 @@ import { esc } from '../utils.js';
 
 export const meta = { title: '', desc: 'खुशी ऑनलाइन सेंटर, विदिशा - CSC एवं MP Online की सेवाएं: समग्र आईडी, राशन कार्ड, पैन कार्ड, पीएम किसान, आयुष्मान कार्ड और अन्य।' };
 let adSlides = [];
+let adIntervalSeconds = 2;
 let slideTimer = null;
+let slideCleanup = null;
 
 export async function render() {
   const services = await fetchServices();
   adSlides = [];
+  adIntervalSeconds = 2;
   try {
     const response = await api('/ads');
     if (!Array.isArray(response.data)) throw new Error('होम विज्ञापन की सूची उपलब्ध नहीं है।');
+    const seconds = response.intervalSeconds === undefined ? 2 : Number(response.intervalSeconds);
+    if (!Number.isInteger(seconds) || seconds < 1 || seconds > 10) throw new Error('होम स्लाइड का समय अमान्य है।');
     adSlides = response.data;
+    adIntervalSeconds = seconds;
   } catch (error) {
     console.error('होम विज्ञापन लोड नहीं हो सके।', error);
   }
-  const heroArt = adSlides.length
-    ? `<div class="hero-art home-ad-carousel" aria-label="खुशी ऑनलाइन सेंटर के विज्ञापन"><img data-home-ad src="${esc(adSlides[0].url)}" alt="${esc(adSlides[0].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" fetchpriority="high" decoding="async"></div>`
-    : `<div class="hero-art" data-img="/images/banners/hero" data-alt="${CONFIG.NAME_HI}"><div class="logo-panel"><img src="/images/logo/logo-512.png" alt="Khushi Online Centre - CSC &amp; Digital Services" width="360" height="360" decoding="async"></div></div>`;
+  const heroArt = adSlides.length > 1
+    ? `<div class="hero-art home-ad-carousel" role="region" aria-label="खुशी ऑनलाइन सेंटर के विज्ञापन"><div class="home-ad-track" data-home-ad-track>
+        <img src="${esc(adSlides[0].url)}" alt="${esc(adSlides[0].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" fetchpriority="high" decoding="async">
+        <img src="${esc(adSlides[1].url)}" alt="${esc(adSlides[1].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" loading="eager" decoding="async">
+      </div></div>`
+    : adSlides.length === 1
+      ? `<div class="hero-art home-ad-carousel" role="region" aria-label="खुशी ऑनलाइन सेंटर का विज्ञापन"><img src="${esc(adSlides[0].url)}" alt="${esc(adSlides[0].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" fetchpriority="high" decoding="async"></div>`
+      : `<div class="hero-art" data-img="/images/banners/hero" data-alt="${CONFIG.NAME_HI}"><div class="logo-panel"><img src="/images/logo/logo-512.png" alt="Khushi Online Centre - CSC &amp; Digital Services" width="360" height="360" decoding="async"></div></div>`;
   const quick = services.slice(0, 8).map((s) => `
     <a class="quick" href="/services/${esc(s.slug)}" data-link><span class="quick-ic">${icon(s.icon, 24)}</span><span data-i18n-en="${esc(s.nameEn || '')}">${esc(s.name)}</span></a>`).join('');
   return `
@@ -86,17 +97,68 @@ export function mount(root) {
   cleanup();
   bindFilter(root.querySelector('#home-services'));
   useRealImages(root);
-  const image = root.querySelector('[data-home-ad]');
-  if (!image || adSlides.length < 2) return;
+  const frame = root.querySelector('.home-ad-carousel');
+  if (!frame) return;
+  const track = root.querySelector('[data-home-ad-track]');
+  let transitioning = false;
+  const activeImage = () => track ? track.children[transitioning ? 1 : 0] : frame.querySelector('img');
+  const setFrameHeight = (image) => {
+    if (!image || !image.naturalWidth || !frame.clientWidth) return;
+    frame.style.height = `${Math.round(frame.clientWidth * image.naturalHeight / image.naturalWidth)}px`;
+  };
+  const initialImage = activeImage();
+  const onInitialLoad = () => setFrameHeight(activeImage());
+  if (initialImage.complete) setFrameHeight(initialImage);
+  else initialImage.addEventListener('load', onInitialLoad);
+  const onResize = () => setFrameHeight(activeImage());
+  window.addEventListener('resize', onResize);
+  if (!track || adSlides.length < 2) {
+    slideCleanup = () => {
+      initialImage.removeEventListener('load', onInitialLoad);
+      window.removeEventListener('resize', onResize);
+    };
+    return;
+  }
+  frame.style.setProperty('--home-ad-slide-duration', `${Math.min(1200, adIntervalSeconds * 700)}ms`);
   let index = 0;
-  slideTimer = window.setInterval(() => {
+  const finishSlide = (event) => {
+    if (event && (event.target !== track || event.propertyName !== 'transform')) return;
+    if (!transitioning) return;
+    transitioning = false;
+    track.style.transition = 'none';
+    track.append(track.firstElementChild);
+    track.style.transform = 'translateX(0)';
+    track.offsetWidth;
+    track.style.transition = '';
     index = (index + 1) % adSlides.length;
-    image.src = adSlides[index].url;
-    image.alt = adSlides[index].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन';
-  }, 2000);
+    const next = track.children[1];
+    const nextSlide = adSlides[(index + 1) % adSlides.length];
+    next.src = nextSlide.url;
+    next.alt = nextSlide.alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन';
+  };
+  const beforeSlide = () => {
+    const next = track.children[1];
+    if (!next.complete || !next.naturalWidth) return;
+    setFrameHeight(next);
+    transitioning = true;
+    track.style.transform = 'translateX(-50%)';
+  };
+  track.addEventListener('transitionend', finishSlide);
+  slideCleanup = () => {
+    initialImage.removeEventListener('load', onInitialLoad);
+    window.removeEventListener('resize', onResize);
+    track.removeEventListener('transitionend', finishSlide);
+    frame.style.removeProperty('--home-ad-slide-duration');
+  };
+  slideTimer = window.setInterval(() => {
+    if (transitioning) return;
+    beforeSlide();
+  }, adIntervalSeconds * 1000);
 }
 
 export function cleanup() {
   if (slideTimer) window.clearInterval(slideTimer);
   slideTimer = null;
+  if (slideCleanup) slideCleanup();
+  slideCleanup = null;
 }

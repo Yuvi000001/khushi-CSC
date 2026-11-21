@@ -5,10 +5,14 @@ import { rules } from '../utils.js';
 import { field, submitForm } from '../components/form.js';
 import { toast } from '../components/notifications.js';
 
-export const meta = { title: 'संपर्क करें', desc: 'खुशी ऑनलाइन सेंटर से संपर्क करें - मोबाइल 7470630571, राम द्वारा, विदिशा।' };
+export const meta = { title: 'संपर्क करें', desc: 'खुशी ऑनलाइन सेंटर से संपर्क करें - मोबाइल 7470630571, khushionlinecentre11@gmail.com, राम द्वारा, विदिशा।' };
 
 export function render() {
-  const rows = [['id', 'CSC ID', CONFIG.CSC_ID], ['user', 'संचालक', CONFIG.OWNER], ['phone', 'मोबाइल', CONFIG.MOBILE], ['map', 'पता', CONFIG.ADDRESS], ...(CONFIG.TIMING ? [['clock', 'समय', CONFIG.TIMING]] : [])];
+  const rows = [
+    ['id', 'CSC ID', CONFIG.CSC_ID], ['user', 'संचालक', CONFIG.OWNER], ['phone', 'मोबाइल', CONFIG.MOBILE],
+    ['mail', 'ईमेल', `<a href="mailto:${CONFIG.EMAIL}">${CONFIG.EMAIL}</a>`], ['map', 'पता', CONFIG.ADDRESS],
+    ...(CONFIG.TIMING ? [['clock', 'समय', CONFIG.TIMING]] : []),
+  ];
   return `
   <section class="page-hero"><div class="container"><h1>संपर्क करें</h1><p>किसी भी जानकारी या सेवा की सहायता के लिए हमसे संपर्क करें।</p></div></section>
   <div class="container contact-grid">
