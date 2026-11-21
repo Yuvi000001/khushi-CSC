@@ -6,6 +6,10 @@ import { esc, fmtDate } from '../utils.js';
 
 export const meta = { title: 'होम विज्ञापन', desc: '' };
 let items = [];
+const IMAGE_EXTENSIONS = new Set([
+  'jpg', 'jpeg', 'jpe', 'jfif', 'png', 'webp', 'gif', 'bmp', 'dib',
+  'tif', 'tiff', 'avif', 'heic', 'heif', 'svg', 'ico', 'jp2', 'j2k',
+]);
 
 const grid = () => `<div class="ad-admin-grid">${items.map((ad) => `
   <article class="ad-admin-card" data-id="${esc(ad._id)}">
@@ -27,10 +31,10 @@ export async function render() {
     <section class="panel">
       <h2>होम स्लाइड में फोटो जोड़ें</h2>
       <form id="ad-upload" class="ad-upload-form" novalidate>
-        <label class="field"><span>एक साथ कई JPG, PNG या WebP फोटो चुनें</span><input type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple required></label>
+        <label class="field"><span>एक साथ कई फोटो चुनें</span><input type="file" name="images" accept="image/*,.heic,.heif,.avif,.tif,.tiff,.bmp,.dib,.svg,.ico,.jp2,.j2k" multiple required></label>
         <button class="btn btn-primary btn-sm" type="submit">${icon('upload', 16)}होम पर जोड़ें</button>
       </form>
-      <p class="muted small">हर फोटो अधिकतम 5 MB। सभी फोटो होम पर 2 सेकंड के अंतर से दिखाई देंगी। हटाने पर स्लाइड से भी हट जाएगी।</p>
+      <p class="muted small">सभी सामान्य फोटो फ़ॉर्मेट चुन सकते हैं; हर फोटो अधिकतम 5 MB। फोटो 2 सेकंड के अंतर से दिखाई देंगी। हटाने पर स्लाइड से भी हट जाएगी।</p>
     </section>
     <section class="panel"><div id="ad-list">${list}</div></section>`);
 }
@@ -42,7 +46,8 @@ export function mount(root) {
     const files = [...form.elements.images.files];
     if (!files.length) return toast('पहले फोटो चुनें।', 'error');
     for (const file of files) {
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return toast('सिर्फ JPG, PNG या WebP फोटो चुनें।', 'error');
+      const extension = file.name.split('.').pop().toLowerCase();
+      if (!file.type.startsWith('image/') && !IMAGE_EXTENSIONS.has(extension)) return toast('फोटो फ़ाइल चुनें।', 'error');
       if (file.size > 5 * 1024 * 1024) return toast(`${file.name}: फोटो 5 MB से छोटी होनी चाहिए।`, 'error');
     }
 
