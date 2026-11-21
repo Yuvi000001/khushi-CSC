@@ -8,12 +8,13 @@ import { setMeta, esc } from './utils.js';
 
 const R = (path, page, o = {}) => ({ path, page, ...o });
 const ROUTES = [
-  R('/', 'home'), R('/services', 'services'), R('/services/:slug', 'service-detail'), R('/about', 'about'), R('/contact', 'contact'),
+  R('/', 'home'), R('/services', 'services'), R('/services/:slug', 'service-detail'), R('/about', 'about'), R('/contact', 'contact'), R('/forms', 'forms'),
   R('/login', 'login', { guest: true }), R('/register', 'register', { guest: true }),
   R('/forgot-password', 'forgot-password'), R('/reset-password', 'forgot-password'),
   R('/profile', 'profile', { auth: true }), R('/my-applications', 'my-applications', { auth: true }),
   R('/admin', 'admin-dashboard', { admin: true }), R('/admin/applications', 'admin-applications', { admin: true }),
   R('/admin/enquiries', 'admin-enquiries', { admin: true }), R('/admin/services', 'admin-services', { admin: true }),
+  R('/admin/schemes', 'admin-schemes', { admin: true }),
   R('/admin/users', 'admin-users', { admin: true }), R('/admin/files', 'admin-files', { admin: true }),
   R('/admin/settings', 'admin-settings', { admin: true }),
 ].map((r) => ({ ...r, re: new RegExp(`^${r.path.replace(/:[a-z]+/g, '([^/]+)')}$`), keys: [...r.path.matchAll(/:([a-z]+)/g)].map((m) => m[1]) }));

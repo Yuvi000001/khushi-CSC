@@ -16,6 +16,7 @@
 .yojana-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; margin-top: 1.2rem; }
 .yojana-item { display: flex; gap: 1rem; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem; }
 .yojana-ic { flex: none; width: 52px; height: 52px; } .yojana-ic svg { width: 100%; height: 100%; display: block; }
+.yojana-ic img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
 .yojana-item h3 { margin: 0 0 .15rem; font-size: 1.02rem; } .yojana-item p { margin: 0 0 .3rem; font-size: .88rem; color: var(--muted); }
 .yojana-cat { font-size: .75rem; background: var(--soft); border-radius: 999px; padding: .1rem .6rem; color: var(--muted); }
 .yojana-note { margin-top: 1.4rem; font-size: .8rem; color: var(--muted); }

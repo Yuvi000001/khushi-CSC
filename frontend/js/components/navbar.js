@@ -4,7 +4,7 @@ import { icon, logo } from '../icons/icons.js';
 import { esc } from '../utils.js';
 import { getLanguage, translateText } from '../i18n.js';
 
-const LINKS = [['/', 'होम'], ['/services', 'सेवाएं'], ['/about', 'हमारे बारे में'], ['/contact', 'संपर्क']];
+const LINKS = [['/', 'होम'], ['/services', 'सेवाएं'], ['/forms', 'फॉर्म डाउनलोड'], ['/about', 'हमारे बारे में'], ['/contact', 'संपर्क']];
 
 export function renderNavbar(path = '/') {
   const u = session.user;

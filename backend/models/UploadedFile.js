@@ -5,6 +5,8 @@ const schema = new mongoose.Schema({
   secureUrl: { type: String, required: true },
   resourceType: { type: String, default: 'image' },
   format: String,
+  originalName: String,
+  mimeType: String,
   bytes: Number,
   folder: String,
   isPrivate: { type: Boolean, default: false },

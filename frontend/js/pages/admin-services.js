@@ -19,10 +19,11 @@ export async function render() {
   let inner;
   try { items = (await api('/admin/services')).data; inner = grid(); } catch (e) { inner = `<p class="empty">${esc(e.message)}</p>`; }
   return adminShell('/admin/services', 'सेवा प्रबंधन', `<div id="svc">${inner}</div><p class="muted small" style="margin-top:1rem">कुल सेवाएं: ${items.length}</p>`,
-    `<button class="btn btn-primary btn-sm" id="add">${icon('plus', 16)}नई सेवा जोड़ें</button>`);
+    `<button type="button" class="btn btn-primary btn-sm" id="add">${icon('plus', 14)}नई सेवा जोड़ें</button>`);
 }
 
-function form(s = {}) {
+function form(s) {
+  s = s || {};
   const lines = (a) => esc((a || []).join('\n'));
   return `<form id="sf" novalidate>
     <div class="field"><label for="s-name">सेवा का नाम (हिंदी)</label><input id="s-name" name="name" value="${esc(s.name || '')}" maxlength="100"></div>
@@ -53,8 +54,10 @@ function editor(s, root) {
 }
 
 export function mount(root) {
+  const addButton = root.querySelector('#add');
+  if (addButton) addButton.addEventListener('click', () => editor(null, root));
   root.addEventListener('click', async (e) => {
-    if (e.target.closest('#add')) return editor(null, root);
+    if (e.target.closest('#add')) return;
     const btn = e.target.closest('[data-act]'); if (!btn) return;
     const s = items.find((x) => x._id === btn.closest('.svc-admin').dataset.id); if (!s) return;
     try {

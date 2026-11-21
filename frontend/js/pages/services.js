@@ -1,10 +1,10 @@
 import { icon } from '../icons/icons.js';
-import { fetchServices, serviceTile, chipsBar, bindFilter, useRealImages, CATS, yojanaSection } from '../components/service-card.js';
+import { fetchServices, fetchSchemes, serviceTile, chipsBar, bindFilter, useRealImages, CATS, yojanaSection } from '../components/service-card.js';
 
 export const meta = { title: 'हमारी सेवाएं', desc: 'CSC और MP Online की सभी सेवाएं - सरकारी, पहचान एवं वित्तीय, डिजिटल और इंटरनेट कैफे सेवाएं।' };
 
 export async function render() {
-  const services = await fetchServices();
+  const [services, schemes] = await Promise.all([fetchServices(), fetchSchemes()]);
   const groups = Object.entries(CATS).map(([k, title]) => {
     const list = services.filter((s) => s.category === k);
     return list.length ? `<section class="svc-group"><h2 data-reveal>${title}</h2><div class="svc-grid">${list.map(serviceTile).join('')}</div></section>` : '';
@@ -21,7 +21,7 @@ export async function render() {
     <p class="svc-empty" hidden>कोई सेवा नहीं मिली। कृपया दूसरा शब्द खोजें या हमें कॉल करें।</p>
     <p class="svc-foot">सभी सेवाएं उपलब्धता, पात्रता और आधिकारिक पोर्टल उपलब्धता पर निर्भर हैं।</p>
   </div>
-  ${yojanaSection()}`;
+  ${yojanaSection(schemes)}`;
 }
 
 export function mount(root) { bindFilter(root.querySelector('#svc-page')); useRealImages(root); }

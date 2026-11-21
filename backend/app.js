@@ -39,6 +39,8 @@ app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, max: 400, standardHeaders:
 app.get('/api/health', (req, res) => res.json({ success: true, status: 'ok' }));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/services', require('./routes/serviceRoutes'));
+app.use('/api/schemes', require('./routes/schemeRoutes'));
+app.use('/api/forms', require('./routes/downloadFormRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/applications', require('./routes/applicationRoutes'));
 app.use('/api/uploads', require('./routes/uploadRoutes'));

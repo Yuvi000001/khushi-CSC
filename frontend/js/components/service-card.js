@@ -7,6 +7,24 @@ import { icon, YOJANA_ICONS } from '../icons/icons.js';
 export const CATS = { govt: 'सरकारी एवं पंचायत सेवाएं', identity: 'पहचान एवं वित्तीय सेवाएं', digital: 'डिजिटल एवं इंटरनेट कैफे सेवाएं' };
 export const CHIPS = [['all', 'सभी'], ['govt', 'सरकारी सेवाएं'], ['identity', 'पहचान व वित्तीय'], ['digital', 'डिजिटल सेवाएं']];
 
+const DEFAULT_YOJANA = [
+  { slug: 'pmkisan', name: 'पीएम किसान सम्मान निधि', nameEn: 'PM Kisan Samman Nidhi', description: 'किसानों को सालाना आर्थिक सहायता।', descriptionEn: 'Annual financial assistance for farmers.', category: 'कृषि', categoryEn: 'Agriculture' },
+  { slug: 'ayushman', name: 'आयुष्मान भारत', nameEn: 'Ayushman Bharat', description: 'पात्र परिवारों के लिए स्वास्थ्य बीमा कवर।', descriptionEn: 'Health insurance coverage for eligible families.', category: 'स्वास्थ्य', categoryEn: 'Health' },
+  { slug: 'eshram', name: 'ई-श्रम', nameEn: 'e-Shram', description: 'असंगठित श्रमिकों का राष्ट्रीय पंजीकरण।', descriptionEn: 'National registration for unorganised workers.', category: 'श्रम', categoryEn: 'Labour' },
+  { slug: 'digitalindia', name: 'डिजिटल इंडिया', nameEn: 'Digital India', description: 'सेवाओं का डिजिटल और सुलभ वितरण।', descriptionEn: 'Accessible digital delivery of services.', category: 'डिजिटल', categoryEn: 'Digital' },
+  { slug: 'pmay', name: 'प्रधानमंत्री आवास योजना', nameEn: 'Pradhan Mantri Awas Yojana', description: 'पात्र परिवारों को पक्के घर में सहायता।', descriptionEn: 'Housing assistance for eligible families.', category: 'आवास', categoryEn: 'Housing' },
+  { slug: 'csc', name: 'कॉमन सर्विस सेंटर (CSC)', nameEn: 'Common Service Centre (CSC)', description: 'गाँव तक डिजिटल सेवाओं की पहुँच।', descriptionEn: 'Bringing digital services to villages.', category: 'सेवाएं', categoryEn: 'Services' },
+  { slug: 'samagra', name: 'समग्र आईडी', nameEn: 'Samagra ID', description: 'मध्य प्रदेश के परिवारों की एकीकृत पहचान।', descriptionEn: 'Unified identification for families in Madhya Pradesh.', category: 'पहचान', categoryEn: 'Identity' },
+  { slug: 'ration', name: 'राशन कार्ड', nameEn: 'Ration Card', description: 'सार्वजनिक वितरण प्रणाली का पात्रता कार्ड।', descriptionEn: 'Eligibility card for the public distribution system.', category: 'खाद्य सुरक्षा', categoryEn: 'Food Security' },
+  { slug: 'pension', name: 'पेंशन योजनाएं', nameEn: 'Pension Schemes', description: 'वृद्ध, विधवा और दिव्यांग जनों को मासिक सहायता।', descriptionEn: 'Monthly assistance for older adults, widows, and people with disabilities.', category: 'सामाजिक सुरक्षा', categoryEn: 'Social Security' },
+  { slug: 'pan', name: 'पैन कार्ड', nameEn: 'PAN Card', description: 'आयकर और वित्तीय कामों की पहचान संख्या।', descriptionEn: 'Identification number for tax and financial services.', category: 'वित्त', categoryEn: 'Finance' },
+];
+
+export async function fetchSchemes() {
+  try { return (await api('/schemes')).data; }
+  catch { return DEFAULT_YOJANA; }
+}
+
 let cache = null;
 export async function fetchServices() {
   if (cache) return cache;
@@ -24,28 +42,17 @@ export const serviceTile = (s) => `
 
 export const chipsBar = (active = 'all') => `<div class="chips" role="tablist" aria-label="श्रेणी">${CHIPS.map(([k, t]) => `<button type="button" role="tab" class="chip${k === active ? ' active' : ''}" data-chip="${k}" aria-selected="${k === active}">${t}</button>`).join('')}</div>`;
 
-const YOJANA = [
-  ['pmkisan', 'पीएम किसान सम्मान निधि', 'किसानों को सालाना आर्थिक सहायता।', 'Agriculture'],
-  ['ayushman', 'आयुष्मान भारत', 'पात्र परिवारों के लिए स्वास्थ्य बीमा कवर।', 'Health'],
-  ['eshram', 'ई-श्रम', 'असंगठित श्रमिकों का राष्ट्रीय पंजीकरण।', 'Labour'],
-  ['digitalindia', 'डिजिटल इंडिया', 'सेवाओं का डिजिटल और सुलभ वितरण।', 'Digital'],
-  ['pmay', 'प्रधानमंत्री आवास योजना', 'पात्र परिवारों को पक्के घर में सहायता।', 'Housing'],
-  ['csc', 'कॉमन सर्विस सेंटर (CSC)', 'गाँव तक डिजिटल सेवाओं की पहुँच।', 'Services'],
-  ['samagra', 'समग्र आईडी', 'मध्य प्रदेश के परिवारों की एकीकृत पहचान।', 'Identity'],
-  ['ration', 'राशन कार्ड', 'सार्वजनिक वितरण प्रणाली का पात्रता कार्ड।', 'Food Security'],
-  ['pension', 'पेंशन योजनाएं', 'वृद्ध, विधवा और दिव्यांग जनों को मासिक सहायता।', 'Social Security'],
-  ['pan', 'पैन कार्ड', 'आयकर और वित्तीय कामों की पहचान संख्या।', 'Finance'],
-];
-
-export const yojanaSection = () => `
+export const yojanaSection = (schemes = DEFAULT_YOJANA) => `
   <section class="yojana" aria-labelledby="yojana-h">
     <div class="container">
       <h2 id="yojana-h" data-reveal>सरकारी योजनाएं</h2>
       <p class="section-sub" data-reveal>जिन योजनाओं में हम आवेदन और जानकारी में सहायता करते हैं।</p>
-      <div class="yojana-grid">${YOJANA.map(([k, n, d, e]) => `
+      <div class="yojana-grid">${schemes.map((scheme) => `
         <article class="yojana-item" data-reveal>
-          <span class="yojana-ic" data-img="/images/yojana/${k}" data-alt="${n}">${YOJANA_ICONS[k]}</span>
-          <div><h3>${n}</h3><p>${d}</p><span class="yojana-cat">${e}</span></div>
+          ${scheme.imageUrl
+    ? `<span class="yojana-ic"><img src="${esc(scheme.imageUrl)}" alt="${esc(scheme.name)}" loading="lazy"></span>`
+    : `<span class="yojana-ic" data-img="/images/yojana/${esc(scheme.slug)}" data-alt="${esc(scheme.name)}">${YOJANA_ICONS[scheme.icon || scheme.slug] || icon('document', 32)}</span>`}
+          <div><h3 data-i18n-en="${esc(scheme.nameEn || '')}">${esc(scheme.name)}</h3><p data-i18n-en="${esc(scheme.descriptionEn || '')}">${esc(scheme.description || '')}</p><span class="yojana-cat" data-i18n-en="${esc(scheme.categoryEn || '')}">${esc(scheme.category || '')}</span></div>
         </article>`).join('')}
       </div>
       <p class="yojana-note">All yojana logos and scheme names are the property of their respective government departments and are used here for identification purposes only.</p>

@@ -23,3 +23,16 @@
 .about-card { background: #FBEFD6; border-radius: 16px 4px 16px 4px; padding: 1.5rem; }
 .home-services { padding: 2.5rem 0 1rem; }
 .svc-empty { text-align: center; color: var(--muted); padding: 1.5rem; }
+.download-page { padding: 2.5rem 0; min-height: 45vh; }
+.download-page > h1 { margin-bottom: .35rem; }
+.download-grid { display: grid; gap: .8rem; margin-top: 1.5rem; }
+.download-card { display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.download-card-icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 10px; color: var(--maroon); background: #F7E6E8; }
+.download-card-info { flex: 1; min-width: 0; }
+.download-card-info h2 { margin: 0; font-size: 1.05rem; }
+.download-card-info p { margin: .2rem 0; color: var(--muted); }
+.download-card-info small { color: var(--muted); overflow-wrap: anywhere; }
+@media (max-width: 520px) {
+  .download-card { align-items: flex-start; flex-wrap: wrap; }
+  .download-card .btn { margin-left: 3.5rem; }
+}

@@ -21,6 +21,7 @@ export async function render() {
         </ul>
         <div class="hero-cta">
           <a class="btn btn-primary" href="/services" data-link>सेवाएं देखें</a>
+          <a class="btn btn-ghost" href="/forms" data-link>${icon('file', 18)}फॉर्म डाउनलोड</a>
           <a class="btn btn-wa" href="${CONFIG.WHATSAPP}" target="_blank" rel="noopener">${icon('whatsapp', 18)}WhatsApp करें</a>
           <a class="btn btn-saffron" href="${CONFIG.CALL}">${icon('phone', 18)}कॉल करें</a>
         </div>
