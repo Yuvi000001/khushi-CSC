@@ -48,6 +48,16 @@
 .download-form-upload input[type="file"] { padding: .5rem; }
 .download-form-upload > button { justify-self: start; margin-bottom: .7rem; }
 .upload-form { display: flex; gap: .7rem; align-items: center; flex-wrap: wrap; margin: .6rem 0; } .upload-form select { width: auto; min-width: 200px; } .upload-form input[type="file"] { width: auto; flex: 1; min-width: 180px; padding: .5rem; }
+.ad-upload-form { display: flex; align-items: end; gap: .7rem; flex-wrap: wrap; }
+.ad-upload-form .field { flex: 1; min-width: 220px; margin-bottom: .7rem; }
+.ad-upload-form .field span { display: block; font-weight: 500; font-size: .92rem; margin-bottom: .3rem; }
+.ad-upload-form input[type="file"] { width: 100%; padding: .5rem; }
+.ad-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .8rem; }
+.ad-admin-card { display: flex; align-items: center; gap: .7rem; min-width: 0; padding: .7rem; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.ad-admin-card img { width: 88px; height: 60px; flex: none; object-fit: contain; border-radius: 7px; background: var(--soft); }
+.ad-admin-info { flex: 1; min-width: 0; }
+.ad-admin-info strong { display: block; overflow-wrap: anywhere; font-size: .85rem; }
+.ad-admin-info small { color: var(--muted); font-size: .75rem; }
 @media (max-width: 860px) {
   /* Sidebar upar ek scrollable tab bar ban jata hai */
   .admin { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
@@ -100,6 +110,9 @@
   .admin-file-list .table td::before { content: none; }
   .admin-file-list .table td.clip { flex: 1; max-width: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .admin-file-list .table td.actions { display: flex; flex: none; justify-content: flex-end; }
+  .ad-admin-grid { grid-template-columns: 1fr; gap: .5rem; }
+  .ad-admin-card { gap: .55rem; padding: .55rem; }
+  .ad-admin-card img { width: 72px; height: 52px; }
   .scheme-form-grid { grid-template-columns: 1fr; }
   .download-form-upload { grid-template-columns: 1fr; }
 }

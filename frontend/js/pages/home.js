@@ -1,12 +1,26 @@
 import { CONFIG } from '../config.js';
+import { api } from '../api.js';
 import { icon } from '../icons/icons.js';
 import { fetchServices, serviceTile, chipsBar, bindFilter, useRealImages } from '../components/service-card.js';
 import { esc } from '../utils.js';
 
 export const meta = { title: '', desc: 'खुशी ऑनलाइन सेंटर, विदिशा - CSC एवं MP Online की सेवाएं: समग्र आईडी, राशन कार्ड, पैन कार्ड, पीएम किसान, आयुष्मान कार्ड और अन्य।' };
+let adSlides = [];
+let slideTimer = null;
 
 export async function render() {
   const services = await fetchServices();
+  adSlides = [];
+  try {
+    const response = await api('/ads');
+    if (!Array.isArray(response.data)) throw new Error('होम विज्ञापन की सूची उपलब्ध नहीं है।');
+    adSlides = response.data;
+  } catch (error) {
+    console.error('होम विज्ञापन लोड नहीं हो सके।', error);
+  }
+  const heroArt = adSlides.length
+    ? `<div class="hero-art home-ad-carousel" aria-label="खुशी ऑनलाइन सेंटर के विज्ञापन"><img data-home-ad src="${esc(adSlides[0].url)}" alt="${esc(adSlides[0].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" fetchpriority="high" decoding="async"></div>`
+    : `<div class="hero-art" data-img="/images/banners/hero" data-alt="${CONFIG.NAME_HI}"><div class="logo-panel"><img src="/images/logo/logo-512.png" alt="Khushi Online Centre - CSC &amp; Digital Services" width="360" height="360" decoding="async"></div></div>`;
   const quick = services.slice(0, 8).map((s) => `
     <a class="quick" href="/services/${esc(s.slug)}" data-link><span class="quick-ic">${icon(s.icon, 24)}</span><span data-i18n-en="${esc(s.nameEn || '')}">${esc(s.name)}</span></a>`).join('');
   return `
@@ -28,7 +42,7 @@ export async function render() {
         <h2 class="quick-h">हमारी प्रमुख सेवाएं</h2>
         <div class="quick-grid">${quick}</div>
       </div>
-      <div class="hero-art" data-img="/images/banners/hero" data-alt="${CONFIG.NAME_HI}"><div class="logo-panel"><img src="/images/logo/logo-512.png" alt="Khushi Online Centre - CSC &amp; Digital Services" width="360" height="360" decoding="async"></div></div>
+      ${heroArt}
     </div>
   </section>
 
@@ -68,4 +82,21 @@ export async function render() {
   </section>`;
 }
 
-export function mount(root) { bindFilter(root.querySelector('#home-services')); useRealImages(root); }
+export function mount(root) {
+  cleanup();
+  bindFilter(root.querySelector('#home-services'));
+  useRealImages(root);
+  const image = root.querySelector('[data-home-ad]');
+  if (!image || adSlides.length < 2) return;
+  let index = 0;
+  slideTimer = window.setInterval(() => {
+    index = (index + 1) % adSlides.length;
+    image.src = adSlides[index].url;
+    image.alt = adSlides[index].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन';
+  }, 2000);
+}
+
+export function cleanup() {
+  if (slideTimer) window.clearInterval(slideTimer);
+  slideTimer = null;
+}

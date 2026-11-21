@@ -20,7 +20,7 @@ const downloadFormsTable = () => `<div class="table-wrap"><table class="table"><
 
 export async function render() {
   let list, formsList;
-  try { items = (await api('/admin/files')).data.filter((file) => file.folder !== 'khushi/forms' && canPreview(file)); list = table(); } catch (e) { list = `<p class="empty">${esc(e.message)}</p>`; }
+  try { items = (await api('/admin/files')).data.filter((file) => !['khushi/forms', 'khushi/ads'].includes(file.folder) && canPreview(file)); list = table(); } catch (e) { list = `<p class="empty">${esc(e.message)}</p>`; }
   try { downloadForms = (await api('/admin/download-forms')).data; formsList = downloadFormsTable(); } catch (e) { formsList = `<p class="empty">${esc(e.message)}</p>`; }
   return adminShell('/admin/files', 'फ़ाइलें', `
     <section class="panel"><h2>डाउनलोड फॉर्म जोड़ें</h2>
