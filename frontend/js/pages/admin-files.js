@@ -1,4 +1,5 @@
 import { api } from '../api.js';
+import { CONFIG } from '../config.js';
 import { icon } from '../icons/icons.js';
 import { adminShell } from '../components/sidebar.js';
 import { confirmBox, toast } from '../components/notifications.js';
@@ -7,18 +8,19 @@ import { esc, fmtDate } from '../utils.js';
 export const meta = { title: 'फ़ाइलें', desc: '' };
 let items = [];
 let downloadForms = [];
-const kb = (b) => (b > 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
+const canPreview = (file) => file && (file.mimeType === 'application/pdf' || /^image\/(jpeg|png|webp)$/.test(file.mimeType));
+const previewUrl = (fileId) => `${CONFIG.API_BASE_URL.replace(/\/$/, '')}/api/uploads/${encodeURIComponent(fileId)}/view`;
+const viewButton = (fileId, action = 'data-file-view') => `<button type="button" class="icon-btn round" ${action}="${esc(fileId)}" aria-label="फ़ाइल देखें">${icon('eye', 16)}</button>`;
 
-const table = () => `<div class="table-wrap"><table class="table"><thead><tr><th>फ़ाइल</th><th>प्रकार</th><th>साइज़</th><th>मालिक</th><th>तारीख़</th><th>कार्रवाई</th></tr></thead><tbody>
-  ${items.map((f) => `<tr data-id="${f._id}"><td data-l="फ़ाइल" class="clip">${esc(f.cloudinaryPublicId.split('/').pop())}</td><td data-l="प्रकार">${esc(f.format || f.resourceType)} <span class="badge badge-${f.isPrivate ? 'amber' : 'green'}">${f.isPrivate ? 'निजी' : 'सार्वजनिक'}</span></td><td data-l="साइज़">${kb(f.bytes || 0)}</td><td data-l="मालिक">${esc(f.ownerId ? f.ownerId.name : '-')}</td><td data-l="तारीख़">${fmtDate(f.createdAt)}</td>
-  <td class="actions"><button class="icon-btn round" data-act="open" aria-label="खोलें">${icon('eye', 16)}</button><button class="icon-btn round danger" data-act="del" aria-label="हटाएं">${icon('trash', 16)}</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">अभी कोई फ़ाइल नहीं है।</td></tr>'}</tbody></table></div>`;
+const table = () => `<div class="table-wrap admin-file-list"><table class="table"><thead><tr><th>फ़ाइल</th><th>देखें</th></tr></thead><tbody>
+  ${items.map((f) => `<tr><td data-l="फ़ाइल" class="clip">${esc(f.originalName || f.cloudinaryPublicId.split('/').pop())}</td><td class="actions">${viewButton(f._id)}</td></tr>`).join('') || '<tr><td colspan="2" class="empty">अभी कोई फ़ाइल नहीं है।</td></tr>'}</tbody></table></div>`;
 
-const downloadFormsTable = () => `<div class="table-wrap"><table class="table"><thead><tr><th>फॉर्म का नाम</th><th>फ़ाइल</th><th>साइज़</th><th>कार्रवाई</th></tr></thead><tbody>
-  ${downloadForms.map((form) => `<tr data-form-id="${form._id}"><td data-l="फॉर्म का नाम">${esc(form.title)}</td><td data-l="फ़ाइल">${esc(form.fileId ? form.fileId.originalName : '-')}</td><td data-l="साइज़">${kb(form.fileId ? form.fileId.bytes || 0 : 0)}</td><td class="actions"><button type="button" class="icon-btn round danger" data-form-act="del" aria-label="हटाएं">${icon('trash', 16)}</button></td></tr>`).join('') || '<tr><td colspan="4" class="empty">अभी कोई डाउनलोड फॉर्म नहीं है।</td></tr>'}</tbody></table></div>`;
+const downloadFormsTable = () => `<div class="table-wrap"><table class="table"><thead><tr><th>फॉर्म का नाम</th><th>फ़ाइल</th><th>कार्रवाई</th></tr></thead><tbody>
+  ${downloadForms.map((form) => `<tr data-form-id="${form._id}"><td data-l="फॉर्म का नाम">${esc(form.title)}</td><td data-l="फ़ाइल">${esc(form.fileId ? form.fileId.originalName : '-')}</td><td class="actions">${canPreview(form.fileId) ? viewButton(form.fileId._id, 'data-form-view') : ''}<button type="button" class="icon-btn round danger" data-form-act="del" aria-label="हटाएं">${icon('trash', 16)}</button></td></tr>`).join('') || '<tr><td colspan="3" class="empty">अभी कोई डाउनलोड फॉर्म नहीं है।</td></tr>'}</tbody></table></div>`;
 
 export async function render() {
   let list, formsList;
-  try { items = (await api('/admin/files')).data; list = table(); } catch (e) { list = `<p class="empty">${esc(e.message)}</p>`; }
+  try { items = (await api('/admin/files')).data.filter((file) => file.folder !== 'khushi/forms' && canPreview(file)); list = table(); } catch (e) { list = `<p class="empty">${esc(e.message)}</p>`; }
   try { downloadForms = (await api('/admin/download-forms')).data; formsList = downloadFormsTable(); } catch (e) { formsList = `<p class="empty">${esc(e.message)}</p>`; }
   return adminShell('/admin/files', 'फ़ाइलें', `
     <section class="panel"><h2>डाउनलोड फॉर्म जोड़ें</h2>
@@ -31,12 +33,6 @@ export async function render() {
       <p class="muted small">PDF, Word, Excel, PowerPoint, OpenDocument, RTF, TXT और CSV फ़ाइलें (अधिकतम 20 MB) अपलोड कर सकते हैं। ये फॉर्म सार्वजनिक रूप से डाउनलोड किए जा सकेंगे।</p>
       <div id="download-forms">${formsList}</div>
     </section>
-    <section class="panel"><h2>नई फ़ाइल अपलोड करें</h2>
-      <form id="up" class="upload-form" novalidate>
-        <select name="kind" aria-label="फ़ोल्डर"><option value="gallery">गैलरी (सार्वजनिक फोटो)</option><option value="documents">दस्तावेज़ (निजी)</option></select>
-        <input type="file" name="file" accept="image/jpeg,image/png,image/webp,application/pdf" aria-label="फ़ाइल चुनें">
-        <button class="btn btn-primary btn-sm" type="submit">${icon('upload', 16)}अपलोड करें</button>
-      </form><p class="muted small">फोटो अधिकतम 5MB, PDF अधिकतम 10MB। दस्तावेज़ निजी रहते हैं और सिर्फ अस्थायी लिंक से खुलते हैं।</p></section>
     <section class="panel" id="files">${list}</section>`);
 }
 
@@ -72,30 +68,18 @@ export function mount(root) {
       toast(err.message, 'error');
       if (uploadedId && !saved) {
         try { await api(`/uploads/${uploadedId}`, { method: 'DELETE' }); }
-        catch { toast('अपलोड हुई फ़ाइल साफ नहीं हो सकी। फ़ाइलें पेज से उसे हटाएं।', 'error'); }
+        catch { toast('अपलोड हुई फ़ाइल साफ नहीं हो सकी। कृपया इसे हटाने के लिए सहायता लें।', 'error'); }
       }
     } finally { button.disabled = false; }
   });
 
-  const form = root.querySelector('#up');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const file = form.file.files[0];
-    if (!file) return toast('पहले फ़ाइल चुनें।', 'error');
-    const fd = new FormData(); fd.append('kind', form.kind.value); fd.append('file', file); // kind पहले, ताकि multer उसे पढ़े
-    const btn = form.querySelector('button'); btn.disabled = true;
-    try { const r = await api('/uploads', { method: 'POST', form: fd }); toast(r.message); form.reset(); items = (await api('/admin/files')).data; root.querySelector('#files').innerHTML = table(); }
-    catch (err) { toast(err.message, 'error'); } finally { btn.disabled = false; }
-  });
-  root.querySelector('#files').addEventListener('click', async (e) => {
-    const b = e.target.closest('[data-act]'); if (!b) return;
-    const f = items.find((x) => x._id === b.closest('tr').dataset.id); if (!f) return;
-    try {
-      if (b.dataset.act === 'open') { const r = await api(`/uploads/${f._id}/url`); window.open(r.data.url, '_blank', 'noopener'); }
-      else if (await confirmBox('यह फ़ाइल हमेशा के लिए हटाएं?')) { const r = await api(`/uploads/${f._id}`, { method: 'DELETE' }); toast(r.message); items = items.filter((x) => x._id !== f._id); root.querySelector('#files').innerHTML = table(); }
-    } catch (err) { toast(err.message, 'error'); }
+  root.querySelector('#files').addEventListener('click', (e) => {
+    const button = e.target.closest('[data-file-view]');
+    if (button) window.open(previewUrl(button.dataset.fileView), '_blank', 'noopener');
   });
   root.querySelector('#download-forms').addEventListener('click', async (e) => {
+    const preview = e.target.closest('[data-form-view]');
+    if (preview) { window.open(previewUrl(preview.dataset.formView), '_blank', 'noopener'); return; }
     const button = e.target.closest('[data-form-act="del"]');
     if (!button) return;
     const form = downloadForms.find((item) => item._id === button.closest('[data-form-id]').dataset.formId);
@@ -104,12 +88,10 @@ export function mount(root) {
     try {
       const result = await api(`/admin/download-forms/${form._id}`, { method: 'DELETE' });
       try { await api(`/uploads/${result.data.fileId}`, { method: 'DELETE' }); }
-      catch { toast('फॉर्म हट गया, लेकिन फ़ाइल साफ नहीं हो सकी। फ़ाइलें सूची से उसे हटाएं।', 'error'); }
+      catch { toast('फॉर्म हट गया, लेकिन उसकी फ़ाइल साफ नहीं हो सकी। कृपया सहायता लें।', 'error'); }
       toast(result.message);
       downloadForms = (await api('/admin/download-forms')).data;
       root.querySelector('#download-forms').innerHTML = downloadFormsTable();
-      items = (await api('/admin/files')).data;
-      root.querySelector('#files').innerHTML = table();
     } catch (err) { toast(err.message, 'error'); button.disabled = false; }
   });
 }

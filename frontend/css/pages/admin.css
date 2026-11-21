@@ -95,6 +95,11 @@
   .applications-table .actions { gap: .5rem; }
   .applications-table .actions .icon-btn.round { min-width: 40px; min-height: 40px; }
   .applications-table .actions .ic { width: 18px; height: 18px; }
+  .admin-file-list .table tr { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; padding: .25rem .5rem; }
+  .admin-file-list .table td { display: block; padding: .2rem 0; border: 0; text-align: left; }
+  .admin-file-list .table td::before { content: none; }
+  .admin-file-list .table td.clip { flex: 1; max-width: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .admin-file-list .table td.actions { display: flex; flex: none; justify-content: flex-end; }
   .scheme-form-grid { grid-template-columns: 1fr; }
   .download-form-upload { grid-template-columns: 1fr; }
 }
