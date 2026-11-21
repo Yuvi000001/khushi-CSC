@@ -1,6 +1,6 @@
 import { CONFIG } from '../config.js';
 import { session } from '../api.js';
-import { icon } from '../icons/icons.js';
+import { icon, logo } from '../icons/icons.js';
 import { esc } from '../utils.js';
 import { getLanguage } from '../i18n.js';
 
@@ -15,7 +15,7 @@ export function adminShell(active, title, body, headerExtra = '') {
   const items = NAV.map(([p, ic, t]) => `<a href="${p}" data-link class="side-item${p === active ? ' active' : ''}"${p === active ? ' aria-current="page"' : ''}>${icon(ic, 18)}<span>${t}</span></a>`).join('');
   return `<div class="admin">
     <aside class="sidebar">
-      <a class="side-brand" href="/" data-link><strong>${CONFIG.NAME_EN}</strong><small>CSC ID : ${CONFIG.CSC_ID}</small></a>
+      <a class="side-brand" href="/" data-link><span class="side-brand-identity">${logo(36)}<strong>${CONFIG.NAME_EN}</strong></span><small>CSC ID : ${CONFIG.CSC_ID}</small></a>
       <nav class="side-nav" aria-label="एडमिन मेनू">${items}<button type="button" class="side-item side-logout" data-logout>${icon('logout', 18)}<span>लॉगआउट</span></button></nav>
     </aside>
     <section class="admin-main">
