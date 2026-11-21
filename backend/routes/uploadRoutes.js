@@ -5,6 +5,7 @@ const adminOnly = require('../middleware/adminOnly');
 const upload = require('../middleware/upload');
 router.use(auth);
 router.post('/', (req, res, next) => upload(req, res, (err) => (err ? next(err) : next())), c.upload);
+router.get('/:id/view', c.view);
 router.get('/:id/url', c.signedUrl);
 router.delete('/:id', adminOnly, c.remove);
 module.exports = router;

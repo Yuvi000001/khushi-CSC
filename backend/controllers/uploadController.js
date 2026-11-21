@@ -3,10 +3,14 @@ const cloudinary = require('../config/cloudinary');
 const UploadedFile = require('../models/UploadedFile');
 const Scheme = require('../models/Scheme');
 const DownloadForm = require('../models/DownloadForm');
+const privateCloudinaryUrl = require('../utils/privateCloudinaryUrl');
 const path = require('path');
 const crypto = require('crypto');
+const { Readable } = require('stream');
+const { pipeline } = require('stream/promises');
 
 const FOLDERS = { profiles: 'khushi/profiles', gallery: 'khushi/gallery', documents: 'khushi/documents', forms: 'khushi/forms' };
+const PREVIEW_MIME_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp']);
 const MAGIC = {
   'image/jpeg': (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
   'image/png': (b) => b.slice(0, 4).toString('hex') === '89504e47',
@@ -115,6 +119,53 @@ exports.signedUrl = async (req, res, next) => {
     });
     res.json({ success: true, data: { url } });
   } catch (e) { next(e); }
+};
+
+exports.view = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ success: false, message: 'फ़ाइल नहीं मिली।' });
+    const file = await UploadedFile.findById(req.params.id);
+    if (!file || (String(file.ownerId) !== String(req.user._id) && req.user.role !== 'admin')) {
+      return res.status(404).json({ success: false, message: 'फ़ाइल नहीं मिली।' });
+    }
+    if (!PREVIEW_MIME_TYPES.has(file.mimeType)) {
+      return res.status(415).json({ success: false, message: 'इस फ़ाइल का preview उपलब्ध नहीं है।' });
+    }
+
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) return res.status(503).json({ success: false, message: 'फ़ाइल preview configure नहीं है।' });
+
+    let url;
+    if (file.isPrivate) {
+      url = privateCloudinaryUrl(file);
+      if (!url) {
+        return res.status(502).json({ success: false, message: 'फ़ाइल preview उपलब्ध नहीं है।' });
+      }
+    } else {
+      url = new URL(file.secureUrl);
+      if (url.protocol !== 'https:' || url.hostname !== 'res.cloudinary.com'
+        || !url.pathname.startsWith(`/${cloudName}/`)) {
+        return res.status(502).json({ success: false, message: 'फ़ाइल preview उपलब्ध नहीं है।' });
+      }
+    }
+
+    const upstream = await fetch(url);
+    if (!upstream.ok || !upstream.body) {
+      return res.status(502).json({ success: false, message: 'फ़ाइल preview उपलब्ध नहीं है।' });
+    }
+    const filename = String(file.originalName || file.cloudinaryPublicId).split(/[\\/]/).pop().replace(/[\r\n"]/g, '_');
+    const fallback = filename.replace(/[^\x20-\x7E]/g, '_').replace(/[\\/]/g, '_');
+    res.set({
+      'Content-Type': file.mimeType,
+      'Content-Disposition': `inline; filename="${fallback}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      'X-Content-Type-Options': 'nosniff',
+      'Cache-Control': 'private, no-store',
+    });
+    await pipeline(Readable.fromWeb(upstream.body), res);
+  } catch (e) {
+    if (res.headersSent) return res.destroy(e);
+    next(e);
+  }
 };
 
 exports.remove = async (req, res, next) => {

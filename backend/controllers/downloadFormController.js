@@ -3,7 +3,7 @@ const { Readable } = require('stream');
 const { pipeline } = require('stream/promises');
 const DownloadForm = require('../models/DownloadForm');
 const UploadedFile = require('../models/UploadedFile');
-const cloudinary = require('../config/cloudinary');
+const privateCloudinaryUrl = require('../utils/privateCloudinaryUrl');
 
 const bad = (res, message, status = 404) => res.status(status).json({ success: false, message });
 const FILE_FIELDS = 'originalName mimeType bytes';
@@ -71,18 +71,11 @@ exports.download = async (req, res, next) => {
     if (!form || !form.fileId) return bad(res, 'डाउनलोड फॉर्म नहीं मिला।');
 
     const file = form.fileId;
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    if (!cloudName || file.resourceType !== 'raw' || !file.isPrivate) {
+    if (file.resourceType !== 'raw' || !file.isPrivate) {
       return bad(res, 'डाउनलोड फाइल उपलब्ध नहीं है।', 502);
     }
-    const signedUrl = cloudinary.utils.private_download_url(file.cloudinaryPublicId, file.format, {
-      resource_type: 'raw',
-      type: 'authenticated',
-      expires_at: Math.floor(Date.now() / 1000) + 600,
-    });
-    const url = new URL(signedUrl);
-    if (url.protocol !== 'https:' || url.hostname !== 'api.cloudinary.com'
-      || url.pathname !== `/v1_1/${cloudName}/raw/download`) {
+    const url = privateCloudinaryUrl(file);
+    if (!url) {
       return bad(res, 'डाउनलोड फाइल उपलब्ध नहीं है।', 502);
     }
     const upstream = await fetch(url);
