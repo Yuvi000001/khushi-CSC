@@ -20,7 +20,7 @@ export function renderFooter() {
         <li>${icon('phone', 16)}<a href="${CONFIG.CALL}">${CONFIG.MOBILE}</a></li>
         <li>${icon('mail', 16)}<a href="mailto:${CONFIG.EMAIL}">${CONFIG.EMAIL}</a></li>
         <li>${icon('whatsapp', 16)}<a href="${CONFIG.WHATSAPP}" target="_blank" rel="noopener">WhatsApp</a></li>
-        <li>${icon('map', 16)}<a href="${CONFIG.MAPS}" target="_blank" rel="noopener">${CONFIG.ADDRESS_SHORT}</a></li></ul></div>
+        <li>${icon('map', 14)}<a href="${CONFIG.MAPS}" target="_blank" rel="noopener">${CONFIG.ADDRESS_SHORT}</a></li></ul></div>
     </div>
     <div class="footer-note"><div class="container">
       <p>अस्वीकरण: यह सरकारी वेबसाइट नहीं है। सेवाएं पात्रता, पोर्टल की उपलब्धता और आधिकारिक अनुमति पर निर्भर हैं। सरकारी शुल्क अलग से लगेगा। हम कभी भी Aadhaar नंबर, OTP या Bank PIN नहीं मांगते।</p>
