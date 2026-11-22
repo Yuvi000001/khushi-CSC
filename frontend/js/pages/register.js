@@ -1,7 +1,7 @@
 import { CONFIG } from '../config.js';
-import { register } from '../api.js';
+import { register, verifySignupOtp } from '../api.js';
 import { logo } from '../icons/icons.js';
-import { rules } from '../utils.js';
+import { esc, rules } from '../utils.js';
 import { field, pwField, bindPw, submitForm } from '../components/form.js';
 import { toast } from '../components/notifications.js';
 import { navigate } from '../router.js';
@@ -28,15 +28,39 @@ export function render() {
 export function mount(root) {
   bindPw(root);
   const form = root.querySelector('#reg-form');
+  const registrationForm = form.innerHTML;
+  let pendingEmail = '';
+  const showOtp = (email) => {
+    form.innerHTML = `${field({ name: 'otp', label: 'ईमेल पर आया OTP', ph: '6 अंकों का कोड', mode: 'numeric', max: 6, ac: 'one-time-code' })}
+      <p class="muted small">${esc(email)} पर भेजा गया कोड दर्ज करें। OTP सही होने के बाद ही खाता बनेगा।</p>
+      <p class="muted small">कोड नहीं आया? वापस जाकर एक मिनट बाद फिर कोशिश करें।</p>
+      <button class="btn btn-primary btn-block" type="submit">OTP सत्यापित करके खाता बनाएं</button>
+      <button class="btn btn-ghost btn-block" type="button" data-otp-back>वापस</button>`;
+    form.querySelector('[name="otp"]').focus();
+  };
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (pendingEmail) {
+      submitForm(form, (d) => ({ otp: /^\d{6}$/.test(d.otp) ? '' : '6 अंकों का सही OTP लिखें।' }), async (d) => {
+        const user = await verifySignupOtp(pendingEmail, d.otp);
+        toast('OTP सत्यापित। आपका खाता बन गया।');
+        navigate(user.role === 'admin' ? '/admin' : '/profile');
+      });
+      return;
+    }
     submitForm(form, (d) => ({
       name: d.name.trim().length < 2 ? 'पूरा नाम लिखें।' : '', email: rules.email(d.email), mobile: rules.mobile(d.mobile),
       password: rules.password(d.password), terms: d.terms ? '' : 'आगे बढ़ने के लिए सहमति ज़रूरी है।',
     }), async (d) => {
-      await register({ name: d.name, email: d.email, mobile: d.mobile, password: d.password });
-      toast('खाता बन गया। स्वागत है!');
-      navigate('/profile');
+      const result = await register({ name: d.name, email: d.email, mobile: d.mobile, password: d.password });
+      pendingEmail = result.data.email;
+      showOtp(pendingEmail);
+      toast(result.message);
     });
+  });
+  form.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-otp-back]')) return;
+    pendingEmail = '';
+    form.innerHTML = registrationForm;
   });
 }

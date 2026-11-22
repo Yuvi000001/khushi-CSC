@@ -34,6 +34,16 @@ export async function loadSession() {
   try { const r = await api('/auth/me'); setSession(r.data.user, r.data.csrfToken); }
   catch { setSession(null, null); }
 }
-export async function login(email, password) { const r = await api('/auth/login', { method: 'POST', body: { email, password } }); setSession(r.data.user, r.data.csrfToken); return r.data.user; }
-export async function register(body) { const r = await api('/auth/register', { method: 'POST', body }); setSession(r.data.user, r.data.csrfToken); return r.data.user; }
+export async function login(email, password) { return api('/auth/login', { method: 'POST', body: { email, password } }); }
+export async function verifyLoginOtp(email, otp) {
+  const r = await api('/auth/login/verify-otp', { method: 'POST', body: { email, otp } });
+  setSession(r.data.user, r.data.csrfToken);
+  return r.data.user;
+}
+export async function register(body) { return api('/auth/register', { method: 'POST', body }); }
+export async function verifySignupOtp(email, otp) {
+  const r = await api('/auth/register/verify-otp', { method: 'POST', body: { email, otp } });
+  setSession(r.data.user, r.data.csrfToken);
+  return r.data.user;
+}
 export async function logout() { try { await api('/auth/logout', { method: 'POST' }); } catch { /* ignore */ } setSession(null, null); }

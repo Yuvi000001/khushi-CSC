@@ -9,7 +9,7 @@
 // ============================================================
 export const CONFIG = {
   API_BASE_URL: 'https://khushi-csc.onrender.com',
-  SITE_URL: 'https://www.aapkadomain.com',
+  SITE_URL: 'https://khushi-csc-frontend-dusky.vercel.app',
 
   // Kendra ki jaankari
   NAME_HI: 'खुशी ऑनलाइन सेंटर',
