@@ -55,7 +55,7 @@ export async function render() {
         <label class="field"><span>एक साथ कई फोटो चुनें</span><input type="file" name="images" accept="image/*,.heic,.heif,.avif,.tif,.tiff,.bmp,.dib,.svg,.ico,.jp2,.j2k" multiple required></label>
         <button class="btn btn-primary btn-sm" type="submit">${icon('upload', 16)}होम पर जोड़ें</button>
       </form>
-      <p class="muted small">सभी सामान्य फोटो फ़ॉर्मेट चुन सकते हैं; हर फोटो अधिकतम 5 MB। फोटो सेव की गई timing के अनुसार बदलेंगी। हटाने पर स्लाइड से भी हट जाएगी।</p>
+      <p class="muted small">UIDAI जैसे चौड़े बैनर के लिए landscape फोटो (लगभग 3:1) अपलोड करें। सभी सामान्य फोटो फ़ॉर्मेट चुन सकते हैं; हर फोटो अधिकतम 5 MB। फोटो सेव की गई timing के अनुसार बदलेंगी। हटाने पर स्लाइड से भी हट जाएगी।</p>
     </section>
     <section class="panel"><div id="ad-list">${list}</div></section>`);
 }

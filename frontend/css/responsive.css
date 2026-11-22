@@ -1,7 +1,7 @@
 @media (max-width: 960px) {
   .hero-grid { grid-template-columns: 1fr !important; }
   .hero-art { order: -1; max-width: 460px; margin-inline: auto; }
-  .hero-art.home-ad-carousel { max-width: 520px; }
+  .hero-art.home-ad-carousel { width: 100%; max-width: 100%; }
   .detail-grid, .contact-grid, .how, .about-grid { grid-template-columns: 1fr !important; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .stat-boxes { grid-template-columns: repeat(2, 1fr) !important; }
@@ -25,6 +25,7 @@
   .info-cards, .values-grid, .yojana-grid { grid-template-columns: 1fr !important; }
   .stats { grid-template-columns: repeat(2, 1fr) !important; }
   .hero-cta .btn, .cta-row .btn { flex: 1 1 100%; }
+  .home-ad-carousel { aspect-ratio: 16 / 9; }
   .profile-head { flex-wrap: wrap; }
   .kv { grid-template-columns: 1fr; gap: 0; } .kv dt { margin-top: .5rem; }
   /* Tables card ban jati hain */
