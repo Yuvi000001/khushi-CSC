@@ -1,7 +1,7 @@
 @media (max-width: 960px) {
   .hero-grid { grid-template-columns: 1fr !important; }
   .hero-art { order: -1; max-width: 460px; margin-inline: auto; }
-  .hero-art.home-ad-carousel { max-width: 620px; }
+  .hero-art.home-ad-carousel { max-width: 520px; }
   .detail-grid, .contact-grid, .how, .about-grid { grid-template-columns: 1fr !important; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .stat-boxes { grid-template-columns: repeat(2, 1fr) !important; }
