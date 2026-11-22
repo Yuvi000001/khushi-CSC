@@ -8,13 +8,10 @@ const path = require('path');
 const crypto = require('crypto');
 const { Readable } = require('stream');
 const { pipeline } = require('stream/promises');
+const { IMAGE_EXTENSIONS } = require('../utils/imageTypes');
 
 const FOLDERS = { profiles: 'khushi/profiles', gallery: 'khushi/gallery', documents: 'khushi/documents', forms: 'khushi/forms', ads: 'khushi/ads' };
 const PREVIEW_MIME_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp']);
-const AD_IMAGE_EXTENSIONS = new Set([
-  '.jpg', '.jpeg', '.jpe', '.jfif', '.png', '.webp', '.gif', '.bmp', '.dib',
-  '.tif', '.tiff', '.avif', '.heic', '.heif', '.svg', '.ico', '.jp2', '.j2k',
-]);
 const MAGIC = {
   'image/jpeg': (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
   'image/png': (b) => b.slice(0, 4).toString('hex') === '89504e47',
@@ -67,18 +64,20 @@ exports.upload = async (req, res, next) => {
     if (kind === 'forms' && !DOCUMENT_EXTENSIONS.has(ext)) {
       return res.status(400).json({ success: false, message: 'PDF, Word, Excel, PowerPoint, OpenDocument, RTF, TXT या CSV फ़ाइल चुनें।' });
     }
-    const isImage = f.mimetype.startsWith('image/');
-    const isAdImage = kind === 'ads' && (isImage || (AD_IMAGE_EXTENSIONS.has(ext) && (!f.mimetype || f.mimetype === 'application/octet-stream')));
+    const imageType = IMAGE_EXTENSIONS[ext];
+    const declaredImageType = f.mimetype === imageType || f.mimetype === 'application/octet-stream';
+    const isImage = !!imageType && declaredImageType;
     const magic = MAGIC[f.mimetype];
+    const imageMagic = imageType && MAGIC[imageType];
     const invalidContent = kind === 'forms'
       ? !FORM_SIGNATURES[ext](f.buffer)
-      : kind === 'ads'
-        ? !isAdImage
-        : (!magic || !magic(f.buffer));
+      : isImage
+        ? !imageMagic || !imageMagic(f.buffer)
+        : kind === 'ads' || !magic || !magic(f.buffer);
     if (invalidContent) {
       return res.status(400).json({ success: false, message: 'फ़ाइल की सामग्री मान्य नहीं है।' });
     }
-    if (isAdImage && f.size > 5 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फोटो 5MB से छोटी होनी चाहिए।' });
+    if (kind === 'ads' && f.size > 5 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फोटो 5MB से छोटी होनी चाहिए।' });
     if (isImage && kind !== 'ads' && f.size > 5 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फोटो 5MB से छोटी होनी चाहिए।' });
     if (kind === 'forms' && f.size > 20 * 1024 * 1024) return res.status(400).json({ success: false, message: 'दस्तावेज़ 20MB से छोटी होनी चाहिए।' });
     if (kind === 'documents' && f.size > 10 * 1024 * 1024) return res.status(400).json({ success: false, message: 'फ़ाइल 10MB से छोटी होनी चाहिए।' });
@@ -177,7 +176,7 @@ exports.view = async (req, res, next) => {
     const fallback = filename.replace(/[^\x20-\x7E]/g, '_').replace(/[\\/]/g, '_');
     res.set({
       'Content-Type': file.mimeType,
-      'Content-Disposition': `inline; filename="${fallback}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      'Content-Disposition': `${file.mimeType === 'application/pdf' ? 'attachment' : 'inline'}; filename="${fallback}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
       'X-Content-Type-Options': 'nosniff',
       'Cache-Control': 'private, no-store',
     });

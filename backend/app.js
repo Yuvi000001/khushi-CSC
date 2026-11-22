@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
+const { createRateLimitStore } = require('./config/rateLimitStore');
 const sanitize = require('mongo-sanitize');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 
@@ -20,7 +21,10 @@ app.use(helmet({
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
       connectSrc: ["'self'"],
+      baseUri: ["'self'"],
       frameAncestors: ["'none'"],
+      objectSrc: ["'none'"],
+      formAction: ["'self'"],
     },
   },
 }));
@@ -35,7 +39,13 @@ app.use(cookieParser());
 app.use(express.json({ limit: '50kb' }));
 app.use((req, res, next) => { req.body = sanitize(req.body); req.params = sanitize(req.params); req.query = sanitize(req.query); next(); });
 
-app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, max: 400, standardHeaders: true, legacyHeaders: false }));
+app.use('/api', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 400,
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createRateLimitStore('api'),
+}));
 app.get('/api/health', (req, res) => res.json({ success: true, status: 'ok' }));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/services', require('./routes/serviceRoutes'));

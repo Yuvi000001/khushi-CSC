@@ -3,12 +3,14 @@ const rateLimit = require('express-rate-limit');
 const { body } = require('express-validator');
 const c = require('../controllers/paymentController');
 const validate = require('../middleware/validateRequest');
+const { createRateLimitStore } = require('../config/rateLimitStore');
 
 const submitLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  store: createRateLimitStore('payments'),
   message: { success: false, message: 'बहुत अधिक प्रयास हुए। कुछ देर बाद फिर कोशिश करें।' },
 });
 

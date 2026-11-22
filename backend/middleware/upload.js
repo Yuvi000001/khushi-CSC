@@ -1,9 +1,6 @@
 const multer = require('multer');
 const path = require('path');
-const IMAGE_EXTENSIONS = new Set([
-  '.jpg', '.jpeg', '.jpe', '.jfif', '.png', '.webp', '.gif', '.bmp', '.dib',
-  '.tif', '.tiff', '.avif', '.heic', '.heif', '.svg', '.ico', '.jp2', '.j2k',
-]);
+const { IMAGE_EXTENSIONS, IMAGE_MIME_TYPES } = require('../utils/imageTypes');
 const DOCUMENT_TYPES = {
   '.pdf': new Set(['application/pdf', 'application/octet-stream']),
   '.doc': new Set(['application/msword', 'application/octet-stream']),
@@ -25,8 +22,9 @@ module.exports = multer({
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     const mimeType = file.mimetype || '';
-    const extensionFallback = IMAGE_EXTENSIONS.has(ext) && (!mimeType || mimeType === 'application/octet-stream');
-    const accepted = mimeType.startsWith('image/') || extensionFallback
+    const imageMime = IMAGE_EXTENSIONS[ext];
+    const acceptedImage = imageMime && (!mimeType || mimeType === 'application/octet-stream' || mimeType === imageMime);
+    const accepted = (IMAGE_MIME_TYPES.has(mimeType) && imageMime === mimeType) || acceptedImage
       || (DOCUMENT_TYPES[ext] && DOCUMENT_TYPES[ext].has(file.mimetype));
     if (!accepted) return cb(Object.assign(new Error('JPG, PNG, WebP या मान्य PDF/Word/Excel/PowerPoint दस्तावेज़ चुनें।'), { status: 400 }));
     cb(null, true);

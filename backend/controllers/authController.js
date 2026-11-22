@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const PasswordReset = require('../models/PasswordReset');
 const { sendMail } = require('../config/mailer');
+const { JWT_ALGORITHM, JWT_ISSUER, JWT_AUDIENCE, getJwtSecret } = require('../config/jwt');
 const tpl = require('../utils/emailTemplates');
 
 const DUMMY_HASH = bcrypt.hashSync('khushi-dummy-password', 12); // timing barabar rakhne ke liye
@@ -20,7 +21,9 @@ const publicUser = (u) => ({ id: u._id, name: u.name, email: u.email, mobile: u.
 
 function issue(res, user) {
   const csrf = crypto.randomBytes(24).toString('hex');
-  const token = jwt.sign({ id: user._id, csrf }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  const token = jwt.sign({ id: user._id, csrf, sessionVersion: user.sessionVersion }, getJwtSecret(), {
+    algorithm: JWT_ALGORITHM, issuer: JWT_ISSUER, audience: JWT_AUDIENCE, expiresIn: '7d',
+  });
   res.cookie('token', token, cookieOpts);
   return csrf;
 }
@@ -53,9 +56,12 @@ exports.login = async (req, res, next) => {
   } catch (e) { next(e); }
 };
 
-exports.logout = (req, res) => {
-  res.clearCookie('token', { ...cookieOpts, maxAge: undefined });
-  res.json({ success: true, message: 'लॉगआउट हो गया।' });
+exports.logout = async (req, res, next) => {
+  try {
+    await User.updateOne({ _id: req.user._id }, { $inc: { sessionVersion: 1 } });
+    res.clearCookie('token', { ...cookieOpts, maxAge: undefined });
+    res.json({ success: true, message: 'लॉगआउट हो गया।' });
+  } catch (e) { next(e); }
 };
 
 exports.me = (req, res) => {
@@ -87,7 +93,7 @@ exports.resetPassword = async (req, res, next) => {
     const rec = await PasswordReset.findOne({ tokenHash, used: false, expiresAt: { $gt: new Date() } });
     if (!rec) return res.status(400).json({ success: false, message: 'लिंक अमान्य है या समाप्त हो चुका है।' });
     const passwordHash = await bcrypt.hash(req.body.password, 12);
-    await User.updateOne({ _id: rec.userId }, { passwordHash });
+    await User.updateOne({ _id: rec.userId }, { $set: { passwordHash }, $inc: { sessionVersion: 1 } });
     await PasswordReset.deleteMany({ userId: rec.userId }); // उपयोग के बाद हटाएं
     res.json({ success: true, message: 'पासवर्ड बदल गया। अब लॉगिन करें।' });
   } catch (e) { next(e); }

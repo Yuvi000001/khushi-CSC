@@ -1,4 +1,6 @@
 require('dotenv').config();
+const { getJwtSecret } = require('./config/jwt');
+const { connectRateLimitStore } = require('./config/rateLimitStore');
 const app = require('./app');
 const connectDB = require('./config/database');
 const Service = require('./models/Service');
@@ -25,7 +27,11 @@ async function seedSchemes() {
   for (const k of ['JWT_SECRET', 'MONGODB_URI', 'CLIENT_URL']) {
     if (!process.env[k]) { console.error(`.env me ${k} set karein`); process.exit(1); }
   }
-  if (process.env.JWT_SECRET.length < 32) console.warn('[warn] JWT_SECRET kam se kam 32 akshar ka rakhein');
+  getJwtSecret();
+  if (process.env.NODE_ENV === 'production' && !process.env.REDIS_URL) {
+    console.warn('[warn] REDIS_URL not set; rate limits are per-process and will not be shared across instances.');
+  }
+  await connectRateLimitStore();
   await connectDB();
   await seedServices();
   await seedSchemes();

@@ -4,6 +4,7 @@ const schema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   mobile: { type: String, required: true, trim: true },
   passwordHash: { type: String, required: true },
+  sessionVersion: { type: Number, default: 0, min: 0 },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   verified: { type: Boolean, default: false },
 }, { timestamps: true });

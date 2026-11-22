@@ -5,12 +5,15 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test",
     "seed:admin": "node scripts/seedAdmin.js"
   },
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "cloudinary": "^2.2.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -23,7 +26,8 @@
     "mongo-sanitize": "^1.1.0",
     "mongoose": "^8.4.0",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.13"
-  },
-  "devDependencies": { "nodemon": "^3.1.0" }
+    "nodemailer": "^10.6.1",
+    "rate-limit-redis": "^4.2.0",
+    "redis": "^4.7.0"
+  }
 }

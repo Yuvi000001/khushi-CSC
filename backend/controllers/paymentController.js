@@ -36,8 +36,17 @@ exports.submit = async (req, res, next) => {
 
 exports.adminList = async (req, res, next) => {
   try {
-    const data = await PaymentReport.find().sort({ createdAt: -1 }).limit(50).lean();
-    res.json({ success: true, data });
+    const requestedPage = Number(req.query.page);
+    const safePage = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    const limit = 15;
+    const filter = ['pending', 'verified', 'rejected'].includes(req.query.status)
+      ? { status: req.query.status }
+      : {};
+    const total = await PaymentReport.countDocuments(filter);
+    const pages = Math.max(1, Math.ceil(total / limit));
+    const page = Math.min(safePage, pages);
+    const items = await PaymentReport.find(filter).sort({ createdAt: -1, _id: -1 }).skip((page - 1) * limit).limit(limit).lean();
+    res.json({ success: true, data: { items, total, page, pages } });
   } catch (error) { next(error); }
 };
 
