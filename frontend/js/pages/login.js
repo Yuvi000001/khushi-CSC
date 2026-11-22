@@ -1,3 +1,4 @@
+import { CONFIG } from '../config.js';
 import { login } from '../api.js';
 import { logo } from '../icons/icons.js';
 import { rules } from '../utils.js';
