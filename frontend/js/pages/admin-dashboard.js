@@ -43,7 +43,7 @@ async function body() {
   <section class="panel"><div class="panel-head"><h2>हाल के आवेदन</h2><button class="icon-btn round" id="refresh" aria-label="रीफ़्रेश करें">${icon('refresh', 16)}</button></div>
     <div class="table-wrap"><table class="table"><thead><tr><th>संदर्भ</th><th>नाम</th><th>सेवा</th><th>स्थिति</th><th>तारीख़</th><th></th></tr></thead>
     <tbody>${rows || '<tr><td colspan="6" class="empty">अभी कोई आवेदन नहीं है।</td></tr>'}</tbody></table></div></section>
-  <section class="panel"><div class="panel-head"><h2>UPI भुगतान रिपोर्ट (हाल की 10)</h2><button class="icon-btn round" id="refresh-payments" aria-label="रीफ़्रेश करें">${icon('refresh', 16)}</button></div>
+  <section class="panel"><div class="panel-head"><h2>UPI भुगतान रिपोर्ट (हाल की 10)</h2><div class="admin-head-extra"><a class="btn btn-ghost btn-sm" href="/admin/payments" data-link>सभी भुगतान देखें</a><button class="icon-btn round" id="refresh-payments" aria-label="रीफ़्रेश करें">${icon('refresh', 16)}</button></div></div>
     <p class="muted small">ग्राहक द्वारा भेजी गई रिपोर्ट है, बैंक से स्वतः सत्यापित नहीं। UPI खाते में reference जाँचकर ही स्थिति बदलें।</p>
     <div class="table-wrap"><table class="table"><thead><tr><th>ग्राहक</th><th>सेवा / योजना</th><th>राशि</th><th>UPI संदर्भ</th><th>स्थिति</th><th>तारीख़</th><th>कार्रवाई</th></tr></thead>
     <tbody>${payments || '<tr><td colspan="7" class="empty">अभी कोई भुगतान रिपोर्ट नहीं है।</td></tr>'}</tbody></table></div></section>`;

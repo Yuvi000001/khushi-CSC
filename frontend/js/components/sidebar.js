@@ -5,7 +5,7 @@ import { esc } from '../utils.js';
 import { getLanguage } from '../i18n.js';
 
 const NAV = [
-  ['/admin', 'dashboard', 'डैशबोर्ड'], ['/admin/applications', 'clipboard', 'आवेदन'], ['/admin/enquiries', 'inbox', 'पूछताछ'],
+  ['/admin', 'dashboard', 'डैशबोर्ड'], ['/admin/applications', 'clipboard', 'आवेदन'], ['/admin/payments', 'rupee', 'भुगतान'], ['/admin/enquiries', 'inbox', 'पूछताछ'],
   ['/admin/services', 'grid', 'सेवाएं'], ['/admin/schemes', 'document', 'योजनाएं'], ['/admin/ads', 'image', 'होम विज्ञापन'], ['/admin/users', 'users', 'उपयोगकर्ता'], ['/admin/files', 'folder', 'फ़ाइलें'], ['/admin/settings', 'settings', 'सेटिंग्स'],
 ];
 

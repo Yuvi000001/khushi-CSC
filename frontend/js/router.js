@@ -13,6 +13,7 @@ const ROUTES = [
   R('/forgot-password', 'forgot-password'), R('/reset-password', 'forgot-password'),
   R('/profile', 'profile', { auth: true }), R('/my-applications', 'my-applications', { auth: true }),
   R('/admin', 'admin-dashboard', { admin: true }), R('/admin/applications', 'admin-applications', { admin: true }),
+  R('/admin/payments', 'admin-payments', { admin: true }),
   R('/admin/enquiries', 'admin-enquiries', { admin: true }), R('/admin/services', 'admin-services', { admin: true }),
   R('/admin/schemes', 'admin-schemes', { admin: true }), R('/admin/ads', 'admin-ads', { admin: true }),
   R('/admin/users', 'admin-users', { admin: true }), R('/admin/files', 'admin-files', { admin: true }),
