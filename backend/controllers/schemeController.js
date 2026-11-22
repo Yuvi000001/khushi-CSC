@@ -2,7 +2,7 @@ const Scheme = require('../models/Scheme');
 const UploadedFile = require('../models/UploadedFile');
 
 const bad = (res, message, status = 404) => res.status(status).json({ success: false, message });
-const FIELDS = ['name', 'nameEn', 'description', 'descriptionEn', 'category', 'categoryEn', 'icon', 'imageUrl', 'imageFileId', 'active', 'displayOrder'];
+const FIELDS = ['name', 'nameEn', 'description', 'descriptionEn', 'category', 'categoryEn', 'price', 'icon', 'imageUrl', 'imageFileId', 'active', 'displayOrder'];
 const pick = (body) => Object.fromEntries(FIELDS.filter((key) => body[key] !== undefined).map((key) => [key, body[key]]));
 const slugify = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
 
@@ -24,7 +24,7 @@ async function validateImage(data, res) {
 exports.list = async (req, res, next) => {
   try {
     const data = await Scheme.find({ active: true })
-      .select('slug name nameEn description descriptionEn category categoryEn icon imageUrl displayOrder')
+      .select('slug name nameEn description descriptionEn category categoryEn price icon imageUrl displayOrder')
       .sort({ displayOrder: 1, createdAt: 1 }).lean();
     res.json({ success: true, data });
   } catch (e) { next(e); }

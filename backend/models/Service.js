@@ -5,6 +5,7 @@ const schema = new mongoose.Schema({
   nameEn: { type: String, trim: true, default: '' },
   category: { type: String, enum: ['govt', 'identity', 'digital'], required: true },
   description: { type: String, trim: true, default: '' },
+  price: { type: Number, min: 0, max: 1000000, default: null },
   icon: { type: String, default: 'document' },
   features: [String],
   documents: [String],

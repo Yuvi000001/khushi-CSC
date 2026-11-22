@@ -4,6 +4,7 @@ const c = require('../controllers/adminController');
 const schemes = require('../controllers/schemeController');
 const ads = require('../controllers/adController');
 const downloadForms = require('../controllers/downloadFormController');
+const payments = require('../controllers/paymentController');
 const auth = require('../middleware/auth');
 const adminOnly = require('../middleware/adminOnly');
 const validate = require('../middleware/validateRequest');
@@ -16,6 +17,7 @@ const svc = (optional) => {
     body('nameEn').optional().trim().isLength({ max: 100 }),
     o(body('category').isIn(['govt', 'identity', 'digital'])).withMessage('श्रेणी चुनें।'),
     body('description').optional().trim().isLength({ max: 400 }),
+    body('price').optional({ nullable: true }).isFloat({ min: 0, max: 1000000 }).withMessage('राशि 0 से 10,00,000 रुपये के बीच रखें।').bail().custom((value) => /^\d+(?:\.\d{1,2})?$/.test(String(value))).withMessage('राशि में अधिकतम 2 दशमलव अंक रखें।'),
     body('icon').optional().isString().isLength({ max: 30 }),
     body('features').optional().isArray({ max: 12 }),
     body('documents').optional().isArray({ max: 12 }),
@@ -36,6 +38,7 @@ const schemeFields = (optional) => {
     body('descriptionEn').optional().trim().isLength({ max: 600 }),
     body('category').optional().trim().isLength({ max: 80 }),
     body('categoryEn').optional().trim().isLength({ max: 80 }),
+    body('price').optional({ nullable: true }).isFloat({ min: 0, max: 1000000 }).withMessage('राशि 0 से 10,00,000 रुपये के बीच रखें।').bail().custom((value) => /^\d+(?:\.\d{1,2})?$/.test(String(value))).withMessage('राशि में अधिकतम 2 दशमलव अंक रखें।'),
     body('icon').optional().trim().isLength({ max: 30 }),
     body('imageUrl').optional({ checkFalsy: true }).isURL({ protocols: ['https'], require_protocol: true }).isLength({ max: 2048 }),
     body('imageFileId').optional({ nullable: true }).isMongoId(),
@@ -46,6 +49,8 @@ const schemeFields = (optional) => {
 
 router.get('/dashboard', c.dashboard);
 router.get('/applications', c.applications);
+router.get('/payments', payments.adminList);
+router.patch('/payments/:id/status', [body('status').isIn(['verified', 'rejected']).withMessage('भुगतान की स्थिति चुनें।')], validate, payments.updateStatus);
 router.patch('/applications/:id/status', [body('status').isIn(['pending', 'progress', 'done', 'cancelled']).withMessage('अमान्य स्थिति।'), body('note').optional().trim().isLength({ max: 300 })], validate, c.updateApplicationStatus);
 router.delete('/applications/:id', c.deleteApplication);
 router.get('/services', c.allServices);

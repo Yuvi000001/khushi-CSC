@@ -44,6 +44,7 @@ app.use('/api/ads', require('./routes/adRoutes'));
 app.use('/api/forms', require('./routes/downloadFormRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/applications', require('./routes/applicationRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/uploads', require('./routes/uploadRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api', notFound);

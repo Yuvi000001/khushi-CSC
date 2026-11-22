@@ -4,6 +4,7 @@ const Service = require('../models/Service');
 const Application = require('../models/Application');
 const ContactMessage = require('../models/ContactMessage');
 const UploadedFile = require('../models/UploadedFile');
+const PaymentReport = require('../models/PaymentReport');
 const { sendMail } = require('../config/mailer');
 const tpl = require('../utils/emailTemplates');
 
@@ -15,7 +16,7 @@ exports.dashboard = async (req, res, next) => {
   try {
     const since = new Date(Date.now() - 6 * 86400000);
     since.setHours(0, 0, 0, 0);
-    const [total, pending, progress, done, users, enquiries, newEnq, recent, byDay] = await Promise.all([
+    const [total, pending, progress, done, users, enquiries, newEnq, recent, pendingPayments, recentPayments, byDay] = await Promise.all([
       Application.countDocuments(),
       Application.countDocuments({ status: 'pending' }),
       Application.countDocuments({ status: 'progress' }),
@@ -24,6 +25,8 @@ exports.dashboard = async (req, res, next) => {
       ContactMessage.countDocuments(),
       ContactMessage.countDocuments({ status: 'new' }),
       Application.find().populate('serviceId', 'name').sort({ createdAt: -1 }).limit(6).lean(),
+      PaymentReport.countDocuments({ status: 'pending' }),
+      PaymentReport.find().sort({ createdAt: -1 }).limit(10).lean(),
       Application.aggregate([
         { $match: { createdAt: { $gte: since } } },
         { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Kolkata' } }, n: { $sum: 1 } } },
@@ -35,7 +38,7 @@ exports.dashboard = async (req, res, next) => {
       const key = ist(Date.now() - i * 86400000);
       weekly.push({ date: key, count: map[key] || 0 });
     }
-    res.json({ success: true, data: { stats: { total, pending, progress, done, users, enquiries, newEnquiries: newEnq }, weekly, recent } });
+    res.json({ success: true, data: { stats: { total, pending, progress, done, users, enquiries, newEnquiries: newEnq, pendingPayments }, weekly, recent, recentPayments } });
   } catch (e) { next(e); }
 };
 
@@ -78,7 +81,7 @@ exports.deleteApplication = async (req, res, next) => {
   } catch (e) { next(e); }
 };
 
-const SERVICE_FIELDS = ['name', 'nameEn', 'category', 'description', 'icon', 'features', 'documents', 'active', 'displayOrder'];
+const SERVICE_FIELDS = ['name', 'nameEn', 'category', 'description', 'price', 'icon', 'features', 'documents', 'active', 'displayOrder'];
 const pick = (body) => Object.fromEntries(SERVICE_FIELDS.filter((k) => body[k] !== undefined).map((k) => [k, body[k]]));
 const slugify = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || `service-${Date.now()}`;
 
