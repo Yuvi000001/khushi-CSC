@@ -3,6 +3,7 @@ import { openDialog, toast } from './notifications.js';
 import { esc } from '../utils.js';
 import { api } from '../api.js';
 
+const UPI_ID = CONFIG.UPI_ID || 'paytmqr6n3ktl@ptys';
 let qrCodePromise = null;
 
 export function formatRupees(amount) {
@@ -53,14 +54,14 @@ async function showPayment(item) {
     toast('इस सेवा के लिए भुगतान राशि उपलब्ध नहीं है।', 'error');
     return;
   }
-  if (!/^[A-Za-z0-9._-]{2,256}@[A-Za-z0-9.-]{2,64}$/.test(CONFIG.UPI_ID)) {
+  if (!/^[A-Za-z0-9._-]{2,256}@[A-Za-z0-9.-]{2,64}$/.test(UPI_ID)) {
     toast('भुगतान के लिए UPI ID सही तरह सेट नहीं है।', 'error');
     return;
   }
 
   const title = String(item.name || 'Khushi Online Centre').slice(0, 100);
   const uri = `upi://pay?${new URLSearchParams({
-    pa: CONFIG.UPI_ID,
+    pa: UPI_ID,
     pn: CONFIG.NAME_EN,
     am: amount.toFixed(2),
     cu: 'INR',
@@ -71,7 +72,7 @@ async function showPayment(item) {
       <p class="payment-total">भुगतान राशि <strong>${formatRupees(amount)}</strong></p>
       <div class="payment-qr" data-payment-qr role="img" aria-label="भुगतान के लिए UPI QR कोड">QR तैयार हो रहा है...</div>
       <p class="muted small">QR को UPI ऐप से स्कैन करें। भुगतान की पुष्टि करने से पहले ऐप में प्राप्तकर्ता और राशि जाँच लें।</p>
-      <p class="payment-vpa">UPI ID: <code>${esc(CONFIG.UPI_ID)}</code></p>
+      <p class="payment-vpa">UPI ID: <code>${esc(UPI_ID)}</code></p>
       <a class="btn btn-primary btn-block" href="${esc(uri)}">UPI ऐप खोलें</a>
       <p class="payment-note">भुगतान वेबसाइट पर अपने-आप सत्यापित नहीं होता। कृपया रसीद सुरक्षित रखें और केंद्र से पुष्टि करें।</p>
       <form class="payment-report-form" data-payment-report novalidate>
