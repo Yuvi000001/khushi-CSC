@@ -5,6 +5,7 @@ import { icon } from '../icons/icons.js';
 import { esc, rules } from '../utils.js';
 import { field, submitForm } from '../components/form.js';
 import { toast } from '../components/notifications.js';
+import { bindPaymentActions, paymentAction } from '../components/payment.js';
 
 export const meta = { title: 'सेवा', desc: '' };
 let service = null;
@@ -46,6 +47,7 @@ export async function render({ params }) {
           <p class="muted small">नोट: दस्तावेज़ सेवा और पात्रता के अनुसार अलग-अलग हो सकते हैं। आवेदन से पहले पुष्टि कर लें।</p></section>
         <div class="alert">${icon('info', 20)}<p>सरकारी शुल्क अलग से लगेगा। कृपया Aadhaar नंबर, OTP या Bank PIN किसी के साथ साझा न करें - न फ़ोन पर, न मैसेज में।</p></div>
         <div class="cta-row"><a class="btn btn-primary" href="${CONFIG.CALL}">${icon('phone', 18)}हमें कॉल करें</a><a class="btn btn-wa" href="${wa}" target="_blank" rel="noopener">${icon('whatsapp', 18)}WhatsApp करें</a></div>
+        ${Number(service.price) > 0 ? `<section class="card payment-card"><h2>ऑनलाइन भुगतान</h2><p class="muted">यह केंद्र का सेवा शुल्क है। सरकारी शुल्क इसमें शामिल नहीं है।</p>${paymentAction(service, 'service')}</section>` : ''}
         ${apply}
       </div>
       <aside class="detail-side card">
@@ -64,6 +66,7 @@ export async function render({ params }) {
 }
 
 export function mount(root) {
+  bindPaymentActions(root);
   const form = root.querySelector('#apply-form'); if (!form || !service) return;
   form.addEventListener('submit', (e) => {
     e.preventDefault();

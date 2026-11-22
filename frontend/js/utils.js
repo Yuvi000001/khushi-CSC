@@ -3,6 +3,7 @@ export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 export const STATUS = {
   pending: ['प्रतीक्षारत', 'amber'], progress: ['प्रक्रिया में', 'blue'], done: ['पूर्ण', 'green'], cancelled: ['रद्द', 'red'],
+  verified: ['जाँचा गया', 'green'], rejected: ['अस्वीकृत', 'red'],
   new: ['नया', 'amber'], read: ['पढ़ा', 'grey'], replied: ['जवाब दिया', 'green'],
 };
 export const badge = (s) => { const [t, c] = STATUS[s] || [s, 'grey']; return `<span class="badge badge-${c}">${esc(t)}</span>`; };

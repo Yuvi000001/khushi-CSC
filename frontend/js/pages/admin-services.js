@@ -11,7 +11,7 @@ let items = [];
 const grid = () => `<div class="svc-admin-grid">${items.map((s) => `
   <article class="svc-admin${s.active ? '' : ' off'}" data-id="${s._id}">
     <span class="svc-ic">${icon(s.icon, 24)}</span>
-    <div><h3 data-i18n-en="${esc(s.nameEn || '')}">${esc(s.name)}</h3><small>${esc(CATS[s.category] || '')}</small><small>${s.active ? 'चालू' : 'बंद'}</small></div>
+    <div><h3 data-i18n-en="${esc(s.nameEn || '')}">${esc(s.name)}</h3><small>${esc(CATS[s.category] || '')}</small><small>${Number(s.price) > 0 ? `केंद्र शुल्क: ₹${esc(s.price)}` : 'शुल्क सेट नहीं है'}</small><small>${s.active ? 'चालू' : 'बंद'}</small></div>
     <div class="actions"><button class="icon-btn round" data-act="toggle" aria-label="चालू / बंद करें">${icon('toggle', 16)}</button><button class="icon-btn round" data-act="edit" aria-label="बदलें">${icon('edit', 16)}</button><button class="icon-btn round danger" data-act="del" aria-label="हटाएं">${icon('trash', 16)}</button></div>
   </article>`).join('') || '<p class="empty">कोई सेवा नहीं है।</p>'}</div>`;
 
@@ -31,6 +31,7 @@ function form(s) {
     <div class="field"><label for="s-cat">श्रेणी</label><select id="s-cat" name="category">${Object.entries(CATS).map(([k, t]) => `<option value="${k}"${k === s.category ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
     <div class="field"><label for="s-ic">आइकन</label><select id="s-ic" name="icon">${iconNames.map((k) => `<option${k === (s.icon || 'document') ? ' selected' : ''}>${k}</option>`).join('')}</select></div>
     <div class="field"><label for="s-d">छोटा विवरण</label><textarea id="s-d" name="description" rows="2" maxlength="400">${esc(s.description || '')}</textarea></div>
+    <div class="field"><label for="s-price">केंद्र शुल्क (₹; खाली छोड़ें तो भुगतान बंद)</label><input id="s-price" name="price" type="number" min="0" max="1000000" step="0.01" value="${Number(s.price) > 0 ? esc(s.price) : ''}"></div>
     <div class="field"><label for="s-f">मुख्य सुविधाएं (हर लाइन में एक)</label><textarea id="s-f" name="features" rows="3">${lines(s.features)}</textarea></div>
     <div class="field"><label for="s-docs">आवश्यक दस्तावेज़ (हर लाइन में एक)</label><textarea id="s-docs" name="documents" rows="3">${lines(s.documents)}</textarea></div>
     <div class="dialog-actions"><button type="button" class="btn btn-ghost" data-close>रद्द करें</button><button class="btn btn-primary" type="submit">सहेजें</button></div></form>`;
@@ -45,7 +46,7 @@ function editor(s, root) {
     const f = Object.fromEntries(new FormData(e.target));
     const list = (t) => t.split('\n').map((x) => x.trim()).filter(Boolean);
     if (f.name.trim().length < 2) return toast('सेवा का नाम लिखें।', 'error');
-    const body = { ...f, features: list(f.features), documents: list(f.documents) };
+    const body = { ...f, price: f.price.trim() ? Number(f.price) : null, features: list(f.features), documents: list(f.documents) };
     try {
       const r = s ? await api(`/admin/services/${s._id}`, { method: 'PATCH', body }) : await api('/admin/services', { method: 'POST', body: { ...body, displayOrder: items.length + 1 } });
       toast(r.message); d.close(); await reload(root);

@@ -17,6 +17,7 @@ export const CONFIG = {
   CSC_ID: '241114270010',
   OWNER: 'Kop Singh Malviya',
   MOBILE: '7470630571',
+  UPI_ID: 'paytmqr6n3ktl@ptys',
   EMAIL: 'khushionlinecentre11@gmail.com',
   WHATSAPP: 'https://wa.me/917470630571',
   CALL: 'tel:7470630571',

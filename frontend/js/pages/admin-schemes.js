@@ -15,7 +15,8 @@ const grid = () => `<div class="scheme-admin-grid">${items.map((scheme) => `
   <article class="scheme-admin${scheme.active ? '' : ' off'}" data-slug="${esc(scheme.slug)}">
     ${image(scheme)}
     <div class="scheme-admin-info"><h3 data-i18n-en="${esc(scheme.nameEn || '')}">${esc(scheme.name)}</h3><p data-i18n-en="${esc(scheme.descriptionEn || '')}">${esc(scheme.description || '')}</p>
-      <small><span data-i18n-en="${esc(scheme.categoryEn || '')}">${esc(scheme.category || scheme.categoryEn || '')}</span> · ${scheme.active ? 'चालू' : 'बंद'}</small></div>
+      <small><span data-i18n-en="${esc(scheme.categoryEn || '')}">${esc(scheme.category || scheme.categoryEn || '')}</span> · ${scheme.active ? 'चालू' : 'बंद'}</small>
+      <small>${Number(scheme.price) > 0 ? `केंद्र शुल्क: ₹${esc(scheme.price)}` : 'शुल्क सेट नहीं है'}</small></div>
     <div class="actions">
       <button class="icon-btn round" data-act="toggle" aria-label="चालू / बंद करें">${icon('toggle', 16)}</button>
       <button class="icon-btn round" data-act="edit" aria-label="बदलें">${icon('edit', 16)}</button>
@@ -46,6 +47,7 @@ function form(scheme) {
       <div class="field"><label for="scheme-description-en">Description in English</label><textarea id="scheme-description-en" name="descriptionEn" rows="3" maxlength="600">${esc(scheme.descriptionEn || '')}</textarea></div>
       <div class="field"><label for="scheme-category">श्रेणी (हिंदी)</label><input id="scheme-category" name="category" value="${esc(scheme.category || '')}" maxlength="80"></div>
       <div class="field"><label for="scheme-category-en">Category in English</label><input id="scheme-category-en" name="categoryEn" value="${esc(scheme.categoryEn || '')}" maxlength="80"></div>
+      <div class="field"><label for="scheme-price">केंद्र शुल्क (₹; खाली छोड़ें तो भुगतान बंद)</label><input id="scheme-price" name="price" type="number" min="0" max="1000000" step="0.01" value="${Number(scheme.price) > 0 ? esc(scheme.price) : ''}"></div>
       <div class="field"><label for="scheme-order">दिखाने का क्रम</label><input id="scheme-order" name="displayOrder" type="number" min="0" max="9999" value="${Number(scheme.displayOrder) || items.length + 1}"></div>
       <div class="field"><label for="scheme-image">योजना की फोटो (JPG, PNG, WebP; अधिकतम 5 MB)</label><input id="scheme-image" name="image" type="file" accept="image/jpeg,image/png,image/webp"></div>
     </div>
@@ -91,6 +93,7 @@ function editor(scheme, root) {
       descriptionEn: values.descriptionEn.trim(),
       category: values.category.trim(),
       categoryEn: values.categoryEn.trim(),
+      price: values.price.trim() ? Number(values.price) : null,
       displayOrder: values.displayOrder === '' ? items.length + 1 : Number(values.displayOrder),
       imageUrl: scheme ? scheme.imageUrl : '',
       imageFileId: scheme ? scheme.imageFileId : null,

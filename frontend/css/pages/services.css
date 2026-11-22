@@ -15,8 +15,23 @@
 .section-sub { color: var(--muted); }
 .yojana-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; margin-top: 1.2rem; }
 .yojana-item { display: flex; gap: 1rem; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem; }
+.yojana-item > div { flex: 1; min-width: 0; }
 .yojana-ic { flex: none; width: 52px; height: 52px; } .yojana-ic svg { width: 100%; height: 100%; display: block; }
 .yojana-ic img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
 .yojana-item h3 { margin: 0 0 .15rem; font-size: 1.02rem; } .yojana-item p { margin: 0 0 .3rem; font-size: .88rem; color: var(--muted); }
 .yojana-cat { font-size: .75rem; background: var(--soft); border-radius: 999px; padding: .1rem .6rem; color: var(--muted); }
 .yojana-note { margin-top: 1.4rem; font-size: .8rem; color: var(--muted); }
+.payment-action { display: flex; align-items: center; justify-content: space-between; gap: .6rem; flex-wrap: wrap; margin-top: .8rem; }
+.payment-action strong { color: var(--maroon-deep); font-size: .9rem; }
+.payment-dialog { text-align: center; }
+.payment-total { display: flex; justify-content: center; align-items: baseline; gap: .5rem; }
+.payment-total strong { color: var(--maroon-deep); font-size: 1.35rem; }
+.payment-qr { display: grid; place-items: center; min-height: 250px; margin: .8rem auto; overflow-wrap: anywhere; color: var(--muted); }
+.payment-qr canvas, .payment-qr img { display: block; max-width: 100%; }
+.payment-vpa { margin: .6rem 0; }
+.payment-note { margin: .8rem 0 0; color: var(--muted); font-size: .78rem; }
+.payment-report-form { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--line); text-align: left; }
+.payment-report-form h3 { font-size: 1.05rem; }
+.payment-report-form .field { margin-bottom: .7rem; }
+.payment-report-form input { min-height: 42px; }
+.payment-report-success { padding: .8rem; border-radius: 8px; background: #D5F0E4; color: #0F6B47; }

@@ -12,3 +12,4 @@
 .detail-side dl { margin: .5rem 0 0; } .detail-side dt { font-size: .8rem; color: var(--muted); margin-top: .8rem; } .detail-side dd { margin: 0; font-weight: 500; }
 .detail-side { position: sticky; top: 130px; }
 .apply h2 { font-size: 1.2rem; }
+.payment-card h2 { font-size: 1.2rem; }

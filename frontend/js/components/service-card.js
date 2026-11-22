@@ -3,6 +3,7 @@ import { CONFIG } from '../config.js';
 import { DEFAULT_SERVICES } from '../data.js';
 import { esc } from '../utils.js';
 import { icon, YOJANA_ICONS } from '../icons/icons.js';
+import { paymentAction } from './payment.js';
 
 export const CATS = { govt: 'सरकारी एवं पंचायत सेवाएं', identity: 'पहचान एवं वित्तीय सेवाएं', digital: 'डिजिटल एवं इंटरनेट कैफे सेवाएं' };
 export const CHIPS = [['all', 'सभी'], ['govt', 'सरकारी सेवाएं'], ['identity', 'पहचान व वित्तीय'], ['digital', 'डिजिटल सेवाएं']];
@@ -52,7 +53,7 @@ export const yojanaSection = (schemes = DEFAULT_YOJANA) => `
           ${scheme.imageUrl
     ? `<span class="yojana-ic"><img src="${esc(scheme.imageUrl)}" alt="${esc(scheme.name)}" loading="lazy"></span>`
     : `<span class="yojana-ic" data-img="/images/yojana/${esc(scheme.slug)}" data-alt="${esc(scheme.name)}">${YOJANA_ICONS[scheme.icon || scheme.slug] || icon('document', 32)}</span>`}
-          <div><h3 data-i18n-en="${esc(scheme.nameEn || '')}">${esc(scheme.name)}</h3><p data-i18n-en="${esc(scheme.descriptionEn || '')}">${esc(scheme.description || '')}</p><span class="yojana-cat" data-i18n-en="${esc(scheme.categoryEn || '')}">${esc(scheme.category || '')}</span></div>
+          <div><h3 data-i18n-en="${esc(scheme.nameEn || '')}">${esc(scheme.name)}</h3><p data-i18n-en="${esc(scheme.descriptionEn || '')}">${esc(scheme.description || '')}</p><span class="yojana-cat" data-i18n-en="${esc(scheme.categoryEn || '')}">${esc(scheme.category || '')}</span>${paymentAction(scheme, 'scheme')}</div>
         </article>`).join('')}
       </div>
       <p class="yojana-note">All yojana logos and scheme names are the property of their respective government departments and are used here for identification purposes only.</p>

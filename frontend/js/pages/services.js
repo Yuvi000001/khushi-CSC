@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { icon } from '../icons/icons.js';
 import { fetchServices, fetchSchemes, serviceTile, chipsBar, bindFilter, useRealImages, CATS, yojanaSection } from '../components/service-card.js';
+import { bindPaymentActions } from '../components/payment.js';
 
 export const meta = { title: 'हमारी सेवाएं', desc: `CSC और MP Online की सभी सेवाएं - सरकारी, पहचान एवं वित्तीय, डिजिटल और इंटरनेट कैफे सेवाएं। ईमेल: ${CONFIG.EMAIL}` };
 
@@ -25,4 +26,4 @@ export async function render() {
   ${yojanaSection(schemes)}`;
 }
 
-export function mount(root) { bindFilter(root.querySelector('#svc-page')); useRealImages(root); }
+export function mount(root) { bindFilter(root.querySelector('#svc-page')); bindPaymentActions(root); useRealImages(root); }
