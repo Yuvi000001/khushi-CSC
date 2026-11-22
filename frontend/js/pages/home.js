@@ -36,7 +36,7 @@ export async function render() {
     <a class="quick" href="/services/${esc(s.slug)}" data-link><span class="quick-ic">${icon(s.icon, 24)}</span><span data-i18n-en="${esc(s.nameEn || '')}">${esc(s.name)}</span></a>`).join('');
   return `
   <section class="hero">
-    <div class="container hero-grid">
+    <div class="container hero-grid${adSlides.length ? ' home-ad-grid' : ''}">
       <div class="hero-copy">
         <h1>खुशी ऑनलाइन सेंटर में आपका स्वागत है</h1>
         <p class="hero-sub">CSC एवं MP Online की विश्वसनीय सेवाएं — एक ही स्थान पर, सरल और सुविधाजनक तरीके से।</p>
