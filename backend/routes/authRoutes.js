@@ -19,7 +19,13 @@ const mobile = body('mobile').matches(/^[6-9]\d{9}$/).withMessage('10 अंक�
 router.post('/register', limiter, [
   body('name').trim().isLength({ min: 2, max: 80 }).withMessage('पूरा नाम लिखें।'), email, mobile, password,
 ], validate, c.register);
+router.post('/register/verify-otp', limiter, [
+  email, body('otp').trim().matches(/^\d{6}$/).withMessage('6 अंकों का सही OTP लिखें।'),
+], validate, c.verifySignupOtp);
 router.post('/login', limiter, [email, body('password').isString().notEmpty().withMessage('पासवर्ड लिखें।')], validate, c.login);
+router.post('/login/verify-otp', limiter, [
+  email, body('otp').trim().matches(/^\d{6}$/).withMessage('6 अंकों का सही OTP लिखें।'),
+], validate, c.verifyLoginOtp);
 router.post('/logout', auth, c.logout);
 router.post('/forgot-password', limiter, [email], validate, c.forgotPassword);
 router.post('/reset-password', limiter, [body('token').isHexadecimal().isLength({ min: 64, max: 64 }).withMessage('लिंक अमान्य है।'), password], validate, c.resetPassword);

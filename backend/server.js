@@ -5,6 +5,7 @@ const app = require('./app');
 const connectDB = require('./config/database');
 const Service = require('./models/Service');
 const Scheme = require('./models/Scheme');
+const OtpChallenge = require('./models/OtpChallenge');
 const SystemState = require('./models/SystemState');
 
 async function seedServices() {
@@ -33,6 +34,7 @@ async function seedSchemes() {
   }
   await connectRateLimitStore();
   await connectDB();
+  await OtpChallenge.init();
   await seedServices();
   await seedSchemes();
   const port = process.env.PORT || 5000;

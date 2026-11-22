@@ -12,6 +12,13 @@ exports.welcome = (name) => ({
   subject: 'खुशी ऑनलाइन सेंटर में आपका स्वागत है',
   html: wrap('स्वागत है', `<p>नमस्ते ${esc(name)},</p><p>आपका खाता बन गया है। अब आप सेवाओं के लिए आवेदन कर सकते हैं और अपने आवेदनों की स्थिति देख सकते हैं।</p>`),
 });
+exports.authOtp = (purpose, code) => {
+  const action = purpose === 'signup' ? 'खाता बनाने' : 'लॉगिन करने';
+  return {
+    subject: `आपका OTP - खुशी ऑनलाइन सेंटर`,
+    html: wrap('ईमेल सत्यापन कोड', `<p>${action} के लिए यह OTP दर्ज करें:</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px">${esc(code)}</p><p>यह कोड 10 मिनट तक मान्य है और केवल एक बार उपयोग किया जा सकता है। इसे किसी के साथ साझा न करें।</p>`),
+  };
+};
 exports.contactAck = (name) => ({
   subject: 'आपकी पूछताछ मिल गई है',
   html: wrap('धन्यवाद', `<p>नमस्ते ${esc(name)},</p><p>आपका संदेश हमें मिल गया है। हम जल्द ही आपसे संपर्क करेंगे।</p><p>मोबाइल: 7470630571<br>ईमेल: khushionlinecentre11@gmail.com</p>`),
