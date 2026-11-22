@@ -1,4 +1,4 @@
-.auth { padding: 2.5rem 1rem 3rem; background: linear-gradient(180deg, #FFFAF0, #F7F2EA); }
+.auth { padding: 2.5rem 1rem 3rem; background: #fff; }
 .auth-card { width: min(440px, 100%); margin-inline: auto; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 1.8rem 1.6rem; box-shadow: var(--shadow); }
 .auth-head { display: flex; flex-direction: column; align-items: center; margin-bottom: 1rem; text-align: center; }
 .auth-head strong { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.5rem; color: var(--maroon-deep); margin-top: .4rem; } .auth-head small { color: var(--muted); }

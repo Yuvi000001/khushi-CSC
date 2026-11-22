@@ -1,4 +1,4 @@
-.page-hero { background: linear-gradient(115deg, #FFFAF0, #F6E3C3); padding: 2.2rem 0 1.8rem; border-bottom: 1px solid var(--line); }
+.page-hero { background: #fff; padding: 2.2rem 0 1.8rem; border-bottom: 1px solid var(--line); }
 .page-hero h1 { margin-bottom: .3rem; color: var(--maroon); } .page-hero p { max-width: 60ch; margin: 0; }
 .svc-page { padding: 1.5rem 0 2rem; }
 .search { position: relative; max-width: 460px; } .search .ic { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }

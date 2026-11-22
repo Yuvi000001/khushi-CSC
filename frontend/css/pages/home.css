@@ -1,4 +1,4 @@
-.hero { background: linear-gradient(115deg, #FFFAF0 30%, #F6E3C3 100%); padding: 2.5rem 0 3rem; }
+.hero { background: #fff; padding: 2.5rem 0 3rem; }
 .hero-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2rem; align-items: start; }
 .hero-grid.home-ad-grid { grid-template-columns: minmax(0, 1fr); }
 .hero-grid.home-ad-grid .hero-copy { width: min(100%, 900px); margin-inline: auto; }
@@ -27,7 +27,7 @@
 .step p { margin: .4rem 0 0; font-size: .92rem; }
 .step-n { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--saffron); color: #2A1A00; font-weight: 700; }
 .step-arrow { color: var(--maroon); display: grid; place-items: center; }
-.about-card { background: #FBEFD6; border-radius: 16px 4px 16px 4px; padding: 1.5rem; }
+.about-card { background: #fff; border: 1px solid var(--line); border-radius: 16px 4px 16px 4px; padding: 1.5rem; }
 .home-services { padding: 2.5rem 0 1rem; }
 .svc-empty { text-align: center; color: var(--muted); padding: 1.5rem; }
 .download-page { padding: 1.5rem 0; min-height: 45vh; }
