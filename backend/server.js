@@ -8,6 +8,13 @@ const Scheme = require('./models/Scheme');
 const OtpChallenge = require('./models/OtpChallenge');
 const SystemState = require('./models/SystemState');
 
+const EMAILJS_ENV_KEYS = [
+  'EMAILJS_SERVICE_ID',
+  'EMAILJS_TEMPLATE_ID',
+  'EMAILJS_PUBLIC_KEY',
+  'EMAILJS_PRIVATE_KEY',
+];
+
 async function seedServices() {
   if (await Service.countDocuments()) return;
   await Service.insertMany(require('./utils/defaultServices'));
@@ -27,6 +34,10 @@ async function seedSchemes() {
 (async () => {
   for (const k of ['JWT_SECRET', 'MONGODB_URI', 'CLIENT_URL']) {
     if (!process.env[k]) { console.error(`.env me ${k} set karein`); process.exit(1); }
+  }
+  const missingEmailJsEnv = EMAILJS_ENV_KEYS.filter((key) => !process.env[key]);
+  if (missingEmailJsEnv.length) {
+    console.warn(`[warn] EmailJS configuration missing: ${missingEmailJsEnv.join(', ')}`);
   }
   getJwtSecret();
   if (process.env.NODE_ENV === 'production' && !process.env.REDIS_URL) {

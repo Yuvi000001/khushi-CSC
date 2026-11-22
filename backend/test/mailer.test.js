@@ -3,15 +3,13 @@ const assert = require('node:assert/strict');
 const emailjs = require('@emailjs/nodejs');
 const { sendMail } = require('../config/mailer');
 
-const EMAILJS_ENV = ['EMAILJS_SERVICE_ID', 'EMAILJS_TEMPLATE_ID', 'EMAILJS_PUBLIC_KEY'];
+const EMAILJS_ENV = ['EMAILJS_SERVICE_ID', 'EMAILJS_TEMPLATE_ID', 'EMAILJS_PUBLIC_KEY', 'EMAILJS_PRIVATE_KEY'];
 
-test('EmailJS sends mail using the configured service, template, and public key only', async () => {
+test('EmailJS sends mail using the configured service, template, and keys', async () => {
   const previousEnv = Object.fromEntries(EMAILJS_ENV.map((key) => [key, process.env[key]]));
-  const previousPrivateKey = process.env.EMAILJS_PRIVATE_KEY;
   const previousSend = Object.getOwnPropertyDescriptor(emailjs, 'send');
   const calls = [];
   EMAILJS_ENV.forEach((key, index) => { process.env[key] = `test-${index}`; });
-  delete process.env.EMAILJS_PRIVATE_KEY;
   Object.defineProperty(emailjs, 'send', {
     configurable: true,
     value: async (...args) => { calls.push(args); },
@@ -22,38 +20,47 @@ test('EmailJS sends mail using the configured service, template, and public key 
       'test-0',
       'test-1',
       { to_email: 'user@example.com', subject: 'Test subject', message_html: '<p>Hello</p>' },
-      { publicKey: 'test-2' },
+      { publicKey: 'test-2', privateKey: 'test-3' },
     ]]);
   } finally {
     EMAILJS_ENV.forEach((key) => {
       if (previousEnv[key] === undefined) delete process.env[key];
       else process.env[key] = previousEnv[key];
     });
-    if (previousPrivateKey === undefined) delete process.env.EMAILJS_PRIVATE_KEY;
-    else process.env.EMAILJS_PRIVATE_KEY = previousPrivateKey;
     Object.defineProperty(emailjs, 'send', previousSend);
   }
 });
 
-test('EmailJS provider errors include response details in logs', async () => {
+test('EmailJS provider errors log status, response, and status-specific hints without keys', async () => {
   const previousEnv = Object.fromEntries(EMAILJS_ENV.map((key) => [key, process.env[key]]));
   const previousSend = Object.getOwnPropertyDescriptor(emailjs, 'send');
   const previousError = console.error;
   const errors = [];
   EMAILJS_ENV.forEach((key, index) => { process.env[key] = `test-${index}`; });
-  Object.defineProperty(emailjs, 'send', {
-    configurable: true,
-    value: async () => {
-      const error = new Error('Request failed');
-      error.status = 404;
-      error.text = 'No records found';
-      throw error;
-    },
-  });
   console.error = (...args) => { errors.push(args); };
   try {
-    assert.equal(await sendMail({ to: 'user@example.com', subject: 'Test subject', html: '<p>Hello</p>' }), false);
-    assert.deepEqual(errors, [['[mail] send failed:', 404, 'No records found']]);
+    const cases = [
+      [403, "EmailJS dashboard > Account > Security me 'Allow API for non-browser applications' ON karein."],
+      [422, 'Template me To Email {{to_email}} set karein.'],
+      [412, 'EmailJS me Gmail service reconnect karein.'],
+    ];
+    for (const [status, hint] of cases) {
+      Object.defineProperty(emailjs, 'send', {
+        configurable: true,
+        value: async () => {
+          const error = new Error('Request failed');
+          error.status = status;
+          error.text = `Provider rejected key test-3`;
+          throw error;
+        },
+      });
+      assert.equal(await sendMail({ to: 'user@example.com', subject: 'Test subject', html: '<p>Hello</p>' }), false);
+      assert.deepEqual(errors.pop(), ['[mail] send failed:', {
+        status,
+        text: 'Provider rejected key [REDACTED]',
+        hint,
+      }]);
+    }
   } finally {
     EMAILJS_ENV.forEach((key) => {
       if (previousEnv[key] === undefined) delete process.env[key];
