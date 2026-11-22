@@ -25,7 +25,6 @@
   .info-cards, .values-grid, .yojana-grid { grid-template-columns: 1fr !important; }
   .stats { grid-template-columns: repeat(2, 1fr) !important; }
   .hero-cta .btn, .cta-row .btn { flex: 1 1 100%; }
-  .home-ad-carousel { aspect-ratio: 16 / 9; }
   .profile-head { flex-wrap: wrap; }
   .kv { grid-template-columns: 1fr; gap: 0; } .kv dt { margin-top: .5rem; }
   /* Tables card ban jati hain */
