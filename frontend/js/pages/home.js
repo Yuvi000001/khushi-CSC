@@ -60,7 +60,7 @@ export async function render() {
           <a class="btn btn-ghost" href="/forms" data-link>${icon('file', 18)}फॉर्म डाउनलोड</a>
           <a class="btn btn-wa" href="${CONFIG.WHATSAPP}" target="_blank" rel="noopener">${icon('whatsapp', 18)}WhatsApp करें</a>
           <a class="btn btn-saffron" href="${CONFIG.CALL}">${icon('phone', 18)}कॉल करें</a>
-          <button class="btn btn-ghost" type="button" data-any-payment>${icon('rupee', 18)}UPI से भुगतान करें</button>
+          <button class="btn btn-ghost" type="button" data-any-payment>${icon('rupee', 18)}Razorpay से भुगतान करें</button>
         </div>
         <h2 class="quick-h">हमारी प्रमुख सेवाएं</h2>
         <div class="quick-grid">${quick}</div>

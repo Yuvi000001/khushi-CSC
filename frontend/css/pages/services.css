@@ -26,12 +26,4 @@
 .payment-dialog { text-align: center; }
 .payment-total { display: flex; justify-content: center; align-items: baseline; gap: .5rem; }
 .payment-total strong { color: var(--maroon-deep); font-size: 1.35rem; }
-.payment-qr { display: grid; place-items: center; min-height: 250px; margin: .8rem auto; overflow-wrap: anywhere; color: var(--muted); }
-.payment-qr canvas, .payment-qr img { display: block; max-width: 100%; }
-.payment-vpa { margin: .6rem 0; }
-.payment-note { margin: .8rem 0 0; color: var(--muted); font-size: .78rem; }
-.payment-report-form { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--line); text-align: left; }
-.payment-report-form h3 { font-size: 1.05rem; }
-.payment-report-form .field { margin-bottom: .7rem; }
-.payment-report-form input { min-height: 42px; }
 .payment-report-success { padding: .8rem; border-radius: 8px; background: #D5F0E4; color: #0F6B47; }

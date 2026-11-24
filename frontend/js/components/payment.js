@@ -3,8 +3,7 @@ import { openDialog, toast } from './notifications.js';
 import { esc } from '../utils.js';
 import { api } from '../api.js';
 
-const UPI_ID = CONFIG.UPI_ID || 'paytmqr6n3ktl@ptys';
-let qrCodePromise = null;
+let razorpayScriptPromise = null;
 const paymentActionRoots = new WeakSet();
 
 export function formatRupees(amount) {
@@ -21,143 +20,104 @@ export function paymentAction(item, itemType) {
   if (!Number.isFinite(amount) || amount <= 0) return '';
   return `<div class="payment-action">
     <strong>केंद्र शुल्क: ${formatRupees(amount)}</strong>
-    <button class="btn btn-primary btn-sm" type="button" data-payment data-payment-price="${amount.toFixed(2)}" data-payment-title="${esc(item.name)}" data-payment-type="${itemType}" data-payment-slug="${esc(item.slug)}">UPI से भुगतान करें</button>
+    <button class="btn btn-primary btn-sm" type="button" data-payment-razorpay data-payment-price="${amount.toFixed(2)}" data-payment-title="${esc(item.name)}" data-payment-type="${itemType}" data-payment-slug="${esc(item.slug)}">Razorpay से भुगतान करें</button>
   </div>`;
 }
 
-function loadQrCode() {
-  if (window.QRCode) return Promise.resolve(window.QRCode);
-  if (qrCodePromise) return qrCodePromise;
-  qrCodePromise = new Promise((resolve, reject) => {
+function loadRazorpay() {
+  if (window.Razorpay) return Promise.resolve(window.Razorpay);
+  if (razorpayScriptPromise) return razorpayScriptPromise;
+  razorpayScriptPromise = new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
     script.onload = () => {
-      if (window.QRCode) resolve(window.QRCode);
+      if (window.Razorpay) resolve(window.Razorpay);
       else {
-        qrCodePromise = null;
-        reject(new Error('QR बनाने की लाइब्रेरी उपलब्ध नहीं है।'));
+        razorpayScriptPromise = null;
+        reject(new Error('Razorpay checkout उपलब्ध नहीं है।'));
       }
     };
     script.onerror = () => {
       script.remove();
-      qrCodePromise = null;
-      reject(new Error('QR लाइब्रेरी लोड नहीं हुई। इंटरनेट कनेक्शन जाँचें।'));
+      razorpayScriptPromise = null;
+      reject(new Error('Razorpay checkout लोड नहीं हुआ। इंटरनेट कनेक्शन जाँचें।'));
     };
     document.head.appendChild(script);
   });
-  return qrCodePromise;
+  return razorpayScriptPromise;
 }
 
-async function showPayment(item) {
-  const amount = Number(item.price);
-  if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000) {
-    toast('इस सेवा के लिए भुगतान राशि उपलब्ध नहीं है।', 'error');
-    return;
-  }
-  if (!/^[A-Za-z0-9._-]{2,256}@[A-Za-z0-9.-]{2,64}$/.test(UPI_ID)) {
-    toast('भुगतान के लिए UPI ID सही तरह सेट नहीं है।', 'error');
-    return;
-  }
-
+async function showRazorpayPayment(item) {
   const title = String(item.name || 'Khushi Online Centre').slice(0, 100);
-  const uri = `upi://pay?${new URLSearchParams({
-    pa: UPI_ID,
-    pn: CONFIG.NAME_EN,
-    am: amount.toFixed(2),
-    cu: 'INR',
-    tn: `${title} - Khushi Online Centre`,
-  }).toString()}`;
+  const customAmount = item.itemType === 'custom';
   const dialog = openDialog(`
-    <div class="payment-dialog">
-      <p class="payment-total">भुगतान राशि <strong>${formatRupees(amount)}</strong></p>
-      <div class="payment-qr" data-payment-qr role="img" aria-label="भुगतान के लिए UPI QR कोड">QR तैयार हो रहा है...</div>
-      <p class="muted small">QR को UPI ऐप से स्कैन करें। भुगतान की पुष्टि करने से पहले ऐप में प्राप्तकर्ता और राशि जाँच लें।</p>
-      <p class="payment-vpa">UPI ID: <code>${esc(UPI_ID)}</code></p>
-      <a class="btn btn-primary btn-block" href="${esc(uri)}">UPI ऐप खोलें</a>
-      <p class="payment-note">भुगतान वेबसाइट पर अपने-आप सत्यापित नहीं होता। कृपया रसीद सुरक्षित रखें और केंद्र से पुष्टि करें।</p>
-      <form class="payment-report-form" data-payment-report novalidate>
-        <h3>भुगतान के बाद रिपोर्ट करें</h3>
-        <p class="muted small">UPI ऐप में भुगतान पूरा होने के बाद अपना नाम, मोबाइल और transaction reference भरें। PIN या OTP कभी न लिखें।</p>
-        <div class="field"><label for="payment-name">आपका नाम</label><input id="payment-name" name="customerName" maxlength="100" autocomplete="name" required></div>
-        <div class="field"><label for="payment-mobile">मोबाइल नंबर</label><input id="payment-mobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" required></div>
-        <div class="field"><label for="payment-reference">UPI transaction reference / UTR</label><input id="payment-reference" name="transactionId" maxlength="50" autocomplete="off" required></div>
-        <button class="btn btn-ghost btn-block" type="submit">भुगतान रिपोर्ट भेजें</button>
-      </form>
-    </div>`, { title: `भुगतान - ${title}` });
-  const reportForm = dialog.querySelector('[data-payment-report]');
-  reportForm.addEventListener('submit', async (event) => {
+    <form class="payment-dialog" data-razorpay-form novalidate>
+      ${customAmount
+    ? '<div class="field"><label for="razorpay-amount">भुगतान राशि (₹)</label><input id="razorpay-amount" name="amount" type="number" inputmode="decimal" min="1" max="1000000" step="0.01" required></div>'
+    : `<p class="payment-total">भुगतान राशि <strong>${formatRupees(Number(item.price))}</strong></p>`}
+      <p class="muted small">भुगतान Razorpay के सुरक्षित checkout से होगा। PIN या OTP वेबसाइट पर न लिखें।</p>
+      <div class="field"><label for="razorpay-name">आपका नाम</label><input id="razorpay-name" name="customerName" maxlength="100" autocomplete="name" required></div>
+      <div class="field"><label for="razorpay-mobile">मोबाइल नंबर</label><input id="razorpay-mobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" required></div>
+      <button class="btn btn-primary btn-block" type="submit">Razorpay से भुगतान करें</button>
+    </form>`, { title: `भुगतान - ${title}` });
+  const form = dialog.querySelector('[data-razorpay-form]');
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const formData = Object.fromEntries(new FormData(reportForm));
+    const formData = Object.fromEntries(new FormData(form));
     const customerName = formData.customerName.trim();
     const mobile = formData.mobile.trim();
-    const transactionId = formData.transactionId.trim();
+    const amount = customAmount ? Number(formData.amount) : Number(item.price);
     if (customerName.length < 2) return toast('अपना नाम लिखें।', 'error');
     if (!/^[6-9]\d{9}$/.test(mobile)) return toast('10 अंकों का सही मोबाइल नंबर लिखें।', 'error');
-    if (!/^[A-Za-z0-9-]{6,50}$/.test(transactionId)) return toast('UPI transaction reference सही लिखें।', 'error');
-    const submitButton = reportForm.querySelector('[type="submit"]');
+    if (!Number.isFinite(amount) || amount < 1 || amount > 1000000 || !/^\d+(?:\.\d{1,2})?$/.test(String(formData.amount || amount))) {
+      return toast('राशि ₹1 से ₹10,00,000 के बीच और अधिकतम 2 दशमलव अंकों में रखें।', 'error');
+    }
+    const submitButton = form.querySelector('[type="submit"]');
     submitButton.disabled = true;
     try {
-      const result = await api('/payments', {
+      const Razorpay = await loadRazorpay();
+      const result = await api('/payments/razorpay/orders', {
         method: 'POST',
-        body: { itemType: item.itemType, itemSlug: item.slug, amount, customerName, mobile, transactionId },
+        body: {
+          itemType: item.itemType,
+          itemSlug: item.slug,
+          ...(customAmount ? { amount } : {}),
+          customerName,
+          mobile,
+        },
       });
-      toast(result.message);
-      reportForm.innerHTML = `<p class="payment-report-success">रिपोर्ट मिल गई। संदर्भ: <strong>${esc(result.data.reference)}</strong><br>जाँच पूरी होने तक स्थिति लंबित रहेगी।</p>`;
+      const checkout = new Razorpay({
+        key: result.data.keyId,
+        amount: result.data.amount,
+        currency: result.data.currency,
+        name: CONFIG.NAME_EN,
+        description: `${title} - Khushi Online Centre`.slice(0, 255),
+        order_id: result.data.orderId,
+        prefill: { name: customerName, contact: mobile },
+        handler: async (payment) => {
+          try {
+            const verified = await api('/payments/razorpay/verify', { method: 'POST', body: payment });
+            toast(verified.message);
+            form.innerHTML = `<p class="payment-report-success">${esc(verified.message)}<br>भुगतान संदर्भ: <strong>${esc(payment.razorpay_payment_id)}</strong></p>`;
+          } catch (error) {
+            toast(error.message, 'error');
+            submitButton.disabled = false;
+          }
+        },
+        modal: { ondismiss: () => { submitButton.disabled = false; } },
+        theme: { color: '#7A1F2B' },
+      });
+      checkout.on('payment.failed', () => {
+        toast('भुगतान पूरा नहीं हुआ। आप फिर से कोशिश कर सकते हैं।', 'error');
+        submitButton.disabled = false;
+      });
+      checkout.open();
     } catch (error) {
       toast(error.message, 'error');
       submitButton.disabled = false;
     }
   });
-  const qrTarget = dialog.querySelector('[data-payment-qr]');
-  try {
-    const QRCode = await loadQrCode();
-    if (!qrTarget.isConnected) return;
-    qrTarget.textContent = '';
-    new QRCode(qrTarget, {
-      text: uri,
-      width: 240,
-      height: 240,
-      correctLevel: QRCode.CorrectLevel.M,
-    });
-  } catch (error) {
-    if (qrTarget.isConnected) qrTarget.textContent = `${error.message} नीचे दिए गए बटन से UPI ऐप खोलें।`;
-  }
-}
-
-async function showAnyAmountPayment() {
-  if (!/^[A-Za-z0-9._-]{2,256}@[A-Za-z0-9.-]{2,64}$/.test(UPI_ID)) {
-    toast('भुगतान के लिए UPI ID सही तरह सेट नहीं है।', 'error');
-    return;
-  }
-  const uri = `upi://pay?${new URLSearchParams({
-    pa: UPI_ID,
-    pn: CONFIG.NAME_EN,
-    cu: 'INR',
-    tn: 'Payment to Khushi Online Centre',
-  }).toString()}`;
-  const dialog = openDialog(`
-    <div class="payment-dialog">
-      <p>UPI ऐप में अपनी भुगतान राशि खुद दर्ज करें। इस QR में कोई तय राशि नहीं है।</p>
-      <div class="payment-qr" data-payment-qr role="img" aria-label="अपनी राशि दर्ज करने के लिए UPI QR कोड">QR तैयार हो रहा है...</div>
-      <p class="payment-vpa">UPI ID: <code>${esc(UPI_ID)}</code></p>
-      <a class="btn btn-primary btn-block" href="${esc(uri)}">UPI ऐप खोलें</a>
-      <p class="payment-note">भुगतान से पहले प्राप्तकर्ता जाँचें। आपके बैंक और UPI ऐप की लेन-देन सीमाएं लागू होंगी। भुगतान वेबसाइट पर अपने-आप सत्यापित नहीं होता।</p>
-    </div>`, { title: 'UPI से भुगतान करें' });
-  const qrTarget = dialog.querySelector('[data-payment-qr]');
-  try {
-    const QRCode = await loadQrCode();
-    if (!qrTarget.isConnected) return;
-    qrTarget.textContent = '';
-    new QRCode(qrTarget, {
-      text: uri,
-      width: 240,
-      height: 240,
-      correctLevel: QRCode.CorrectLevel.M,
-    });
-  } catch (error) {
-    if (qrTarget.isConnected) qrTarget.textContent = `${error.message} नीचे दिए गए बटन से UPI ऐप खोलें।`;
-  }
 }
 
 export function bindPaymentActions(root) {
@@ -166,16 +126,22 @@ export function bindPaymentActions(root) {
   root.addEventListener('click', (event) => {
     const anyAmountButton = event.target.closest('[data-any-payment]');
     if (anyAmountButton && root.contains(anyAmountButton)) {
-      showAnyAmountPayment();
+      showRazorpayPayment({
+        itemType: 'custom',
+        slug: 'custom-payment',
+        name: 'सामान्य भुगतान',
+      });
       return;
     }
-    const button = event.target.closest('[data-payment]');
-    if (!button || !root.contains(button)) return;
-    showPayment({
-      price: button.dataset.paymentPrice,
-      name: button.dataset.paymentTitle,
-      itemType: button.dataset.paymentType,
-      slug: button.dataset.paymentSlug,
-    });
+    const razorpayButton = event.target.closest('[data-payment-razorpay]');
+    if (razorpayButton && root.contains(razorpayButton)) {
+      showRazorpayPayment({
+        price: razorpayButton.dataset.paymentPrice,
+        name: razorpayButton.dataset.paymentTitle,
+        itemType: razorpayButton.dataset.paymentType,
+        slug: razorpayButton.dataset.paymentSlug,
+      });
+      return;
+    }
   });
 }

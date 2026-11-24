@@ -30,12 +30,12 @@ async function body() {
     <td><a class="icon-btn round" href="/admin/applications?q=${encodeURIComponent(a.reference)}" data-link aria-label="आवेदन खोलें">${icon('edit', 16)}</a></td></tr>`).join('');
   const payments = (data.recentPayments || []).map((p) => `<tr data-payment-id="${p._id}">
     <td data-l="नाम">${esc(p.customerName)}<small>${esc(p.mobile)}</small></td>
-    <td data-l="सेवा">${p.itemType === 'scheme' ? 'योजना' : 'सेवा'}: ${esc(p.itemName)}</td>
+    <td data-l="सेवा">${p.itemType === 'custom' ? esc(p.itemName) : `${p.itemType === 'scheme' ? 'योजना' : 'सेवा'}: ${esc(p.itemName)}`}</td>
     <td data-l="राशि">₹${esc(p.amount)}</td>
-    <td data-l="UPI संदर्भ">${esc(p.transactionId)}</td>
+    <td data-l="पेमेंट तरीका / संदर्भ">${p.paymentMethod === 'razorpay' ? 'Razorpay' : 'UPI'}<small>${esc(p.razorpayPaymentId || p.transactionId)}</small></td>
     <td data-l="स्थिति">${badge(p.status)}</td>
     <td data-l="तारीख़">${fmtDate(p.createdAt)}</td>
-    <td class="actions">${p.status === 'pending' ? `<button class="btn btn-primary btn-sm" data-payment-status="verified">जाँचकर सही</button><button class="btn btn-ghost btn-sm" data-payment-status="rejected">अस्वीकृत</button>` : ''}</td>
+    <td class="actions">${p.status === 'pending' && p.paymentMethod !== 'razorpay' ? `<button class="btn btn-primary btn-sm" data-payment-status="verified">जाँचकर सही</button><button class="btn btn-ghost btn-sm" data-payment-status="rejected">अस्वीकृत</button>` : ''}</td>
   </tr>`).join('');
   return `
   <div class="stat-boxes">${boxes.map(([k, v, ic]) => `<div class="stat-box"><span>${icon(ic, 20)}</span><div><strong>${v}</strong><small>${k}</small></div></div>`).join('')}</div>
@@ -43,9 +43,9 @@ async function body() {
   <section class="panel"><div class="panel-head"><h2>हाल के आवेदन</h2><button class="icon-btn round" id="refresh" aria-label="रीफ़्रेश करें">${icon('refresh', 16)}</button></div>
     <div class="table-wrap"><table class="table"><thead><tr><th>संदर्भ</th><th>नाम</th><th>सेवा</th><th>स्थिति</th><th>तारीख़</th><th></th></tr></thead>
     <tbody>${rows || '<tr><td colspan="6" class="empty">अभी कोई आवेदन नहीं है।</td></tr>'}</tbody></table></div></section>
-  <section class="panel"><div class="panel-head"><h2>UPI भुगतान रिपोर्ट (हाल की 10)</h2><div class="admin-head-extra"><a class="btn btn-ghost btn-sm" href="/admin/payments" data-link>सभी भुगतान देखें</a><button class="icon-btn round" id="refresh-payments" aria-label="रीफ़्रेश करें">${icon('refresh', 16)}</button></div></div>
-    <p class="muted small">ग्राहक द्वारा भेजी गई रिपोर्ट है, बैंक से स्वतः सत्यापित नहीं। UPI खाते में reference जाँचकर ही स्थिति बदलें।</p>
-    <div class="table-wrap"><table class="table"><thead><tr><th>ग्राहक</th><th>सेवा / योजना</th><th>राशि</th><th>UPI संदर्भ</th><th>स्थिति</th><th>तारीख़</th><th>कार्रवाई</th></tr></thead>
+  <section class="panel"><div class="panel-head"><h2>भुगतान (हाल के 10)</h2><div class="admin-head-extra"><a class="btn btn-ghost btn-sm" href="/admin/payments" data-link>सभी भुगतान देखें</a><button class="icon-btn round" id="refresh-payments" aria-label="रीफ़्रेश करें">${icon('refresh', 16)}</button></div></div>
+    <p class="muted small">UPI रिपोर्ट को बैंक खाते में जाँचें। Razorpay भुगतान सफल webhook के बाद स्वतः सत्यापित होते हैं।</p>
+    <div class="table-wrap"><table class="table"><thead><tr><th>ग्राहक</th><th>सेवा / योजना</th><th>राशि</th><th>पेमेंट तरीका / संदर्भ</th><th>स्थिति</th><th>तारीख़</th><th>कार्रवाई</th></tr></thead>
     <tbody>${payments || '<tr><td colspan="7" class="empty">अभी कोई भुगतान रिपोर्ट नहीं है।</td></tr>'}</tbody></table></div></section>`;
 }
 
