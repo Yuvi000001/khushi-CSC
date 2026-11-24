@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('crypto');
+const PaymentReport = require('../models/PaymentReport');
 const {
   verifyCheckoutSignature,
   verifyWebhookSignature,
@@ -12,6 +13,19 @@ const SECRET = 'test-razorpay-webhook-secret';
 function sign(value) {
   return crypto.createHmac('sha256', SECRET).update(value).digest('hex');
 }
+
+test('Razorpay payment reports allow checkout without customer details', async () => {
+  const report = new PaymentReport({
+    itemType: 'custom',
+    itemSlug: 'custom-payment',
+    itemName: 'सामान्य भुगतान',
+    amount: 10,
+    transactionId: 'order_test123',
+    paymentMethod: 'razorpay',
+    razorpayOrderId: 'order_test123',
+  });
+  await assert.doesNotReject(report.validate());
+});
 
 test('checkout signatures are bound to their order and payment IDs', () => {
   const signature = sign('order_123|pay_456');
@@ -30,11 +44,12 @@ test('webhook signatures verify the exact raw request body', () => {
 });
 
 test('Razorpay webhook and custom order routes enforce signatures and amount limits', async () => {
-  const envKeys = ['RAZORPAY_WEBHOOK_SECRET', 'RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET'];
+  const envKeys = ['RAZORPAY_WEBHOOK_SECRET', 'RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'NODE_ENV'];
   const previousEnv = Object.fromEntries(envKeys.map((key) => [key, process.env[key]]));
   process.env.RAZORPAY_WEBHOOK_SECRET = SECRET;
   delete process.env.RAZORPAY_KEY_ID;
   delete process.env.RAZORPAY_KEY_SECRET;
+  process.env.NODE_ENV = 'production';
   const server = app.listen(0);
   try {
     await new Promise((resolve) => server.once('listening', resolve));
@@ -54,18 +69,28 @@ test('Razorpay webhook and custom order routes enforce signatures and amount lim
     });
     assert.equal(invalid.status, 400);
 
-    const invalidAmount = await fetch(`${url.replace('/webhooks/razorpay', '/payments/razorpay/orders')}`, {
+    const ordersUrl = url.replace('/webhooks/razorpay', '/payments/razorpay/orders');
+    const invalidAmount = await fetch(ordersUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         itemType: 'custom',
         itemSlug: 'custom-payment',
         amount: 0.5,
-        customerName: 'Test Customer',
-        mobile: '9876543210',
       }),
     });
     assert.equal(invalidAmount.status, 422);
+
+    const noCustomerDetails = await fetch(ordersUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        itemType: 'custom',
+        itemSlug: 'custom-payment',
+        amount: 10,
+      }),
+    });
+    assert.equal(noCustomerDetails.status, 503);
 
   } finally {
     await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));

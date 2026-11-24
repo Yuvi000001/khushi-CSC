@@ -30,8 +30,6 @@ router.post('/razorpay/orders', submitLimit, [
     .isFloat({ min: 1, max: 1000000 }).bail()
     .custom((value) => /^\d+(?:\.\d{1,2})?$/.test(String(value)))
     .withMessage('राशि ₹1 से ₹10,00,000 के बीच और अधिकतम 2 दशमलव अंकों में रखें।'),
-  body('customerName').trim().isLength({ min: 2, max: 100 }).withMessage('अपना नाम लिखें।'),
-  body('mobile').matches(/^[6-9]\d{9}$/).withMessage('10 अंकों का सही मोबाइल नंबर लिखें।'),
 ], validate, c.createRazorpayOrder);
 
 router.post('/razorpay/verify', submitLimit, [
