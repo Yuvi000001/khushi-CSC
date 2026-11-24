@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { api } from '../api.js';
 import { icon } from '../icons/icons.js';
+import { bindPaymentActions } from '../components/payment.js';
 import { fetchServices, serviceTile, chipsBar, bindFilter, useRealImages } from '../components/service-card.js';
 import { esc } from '../utils.js';
 
@@ -10,7 +11,6 @@ let adIntervalSeconds = 2;
 let slideTimer = null;
 let slideCleanup = null;
 let slideIndex = 0;
-let slidePaused = false;
 
 export async function render() {
   const services = await fetchServices();
@@ -31,13 +31,13 @@ export async function render() {
         <div class="home-ad-viewport">
           <div class="home-ad-track" data-home-ad-track>
             ${adSlides.map((slide, index) => `<img src="${esc(slide.url)}" alt="${esc(slide.alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" ${index ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async">`).join('')}
+            <img src="${esc(adSlides[0].url)}" alt="" aria-hidden="true" loading="eager" decoding="async">
           </div>
         </div>
         <div class="home-ad-controls">
           <div class="home-ad-dots" role="group" aria-label="विज्ञापन चुनें">
             ${adSlides.map((_, index) => `<button type="button" class="home-ad-dot" data-home-ad-index="${index}" aria-label="विज्ञापन ${index + 1} दिखाएं"${index === 0 ? ' aria-current="true"' : ''}></button>`).join('')}
           </div>
-          <button type="button" class="home-ad-toggle" data-home-ad-toggle aria-label="विज्ञापन रोकें">रोकें</button>
         </div>
       </div>`
     : adSlides.length === 1
@@ -60,6 +60,7 @@ export async function render() {
           <a class="btn btn-ghost" href="/forms" data-link>${icon('file', 18)}फॉर्म डाउनलोड</a>
           <a class="btn btn-wa" href="${CONFIG.WHATSAPP}" target="_blank" rel="noopener">${icon('whatsapp', 18)}WhatsApp करें</a>
           <a class="btn btn-saffron" href="${CONFIG.CALL}">${icon('phone', 18)}कॉल करें</a>
+          <button class="btn btn-ghost" type="button" data-any-payment>${icon('rupee', 18)}UPI से भुगतान करें</button>
         </div>
         <h2 class="quick-h">हमारी प्रमुख सेवाएं</h2>
         <div class="quick-grid">${quick}</div>
@@ -108,6 +109,7 @@ export async function render() {
 export function mount(root) {
   cleanup();
   bindFilter(root.querySelector('#home-services'));
+  bindPaymentActions(root);
   useRealImages(root);
   const frame = root.querySelector('.home-ad-carousel');
   if (!frame) return;
@@ -116,21 +118,33 @@ export function mount(root) {
     return;
   }
   slideIndex = 0;
-  slidePaused = false;
   frame.style.setProperty('--home-ad-slide-duration', `${Math.min(1200, adIntervalSeconds * 700)}ms`);
-  track.style.width = `${adSlides.length * 100}%`;
+  track.style.width = `${(adSlides.length + 1) * 100}%`;
   [...track.children].forEach((image) => {
-    image.style.flex = `0 0 ${100 / adSlides.length}%`;
-    image.style.width = `${100 / adSlides.length}%`;
+    image.style.flex = `0 0 ${100 / (adSlides.length + 1)}%`;
+    image.style.width = `${100 / (adSlides.length + 1)}%`;
   });
   const dots = [...frame.querySelectorAll('[data-home-ad-index]')];
-  const toggle = frame.querySelector('[data-home-ad-toggle]');
+  let pointerStart = null;
   const update = () => {
-    track.style.transform = `translateX(-${slideIndex * 100 / adSlides.length}%)`;
+    track.style.transform = `translateX(-${slideIndex * 100 / (adSlides.length + 1)}%)`;
     dots.forEach((dot, index) => {
-      if (index === slideIndex) dot.setAttribute('aria-current', 'true');
+      if (index === slideIndex % adSlides.length) dot.setAttribute('aria-current', 'true');
       else dot.removeAttribute('aria-current');
     });
+  };
+  const nextSlide = () => {
+    slideIndex = Math.min(slideIndex + 1, adSlides.length);
+    update();
+  };
+  const onTransitionEnd = (event) => {
+    if (event.target !== track || event.propertyName !== 'transform' || slideIndex !== adSlides.length) return;
+    track.style.transition = 'none';
+    slideIndex = 0;
+    track.style.transform = 'translateX(0)';
+    track.offsetWidth;
+    track.style.transition = '';
+    update();
   };
   const stopTimer = () => {
     if (slideTimer) window.clearTimeout(slideTimer);
@@ -138,10 +152,9 @@ export function mount(root) {
   };
   const schedule = () => {
     stopTimer();
-    if (slidePaused || document.hidden) return;
+    if (pointerStart || document.hidden) return;
     slideTimer = window.setTimeout(() => {
-      slideIndex = (slideIndex + 1) % adSlides.length;
-      update();
+      nextSlide();
       schedule();
     }, adIntervalSeconds * 1000);
   };
@@ -154,43 +167,43 @@ export function mount(root) {
     const dot = event.target.closest('[data-home-ad-index]');
     if (dot) goTo(Number(dot.dataset.homeAdIndex));
   };
-  const onToggle = () => {
-    slidePaused = !slidePaused;
-    toggle.textContent = slidePaused ? 'चलाएं' : 'रोकें';
-    toggle.setAttribute('aria-label', slidePaused ? 'विज्ञापन चलाएं' : 'विज्ञापन रोकें');
-    schedule();
-  };
-  let pointerStart = null;
   const onPointerDown = (event) => {
     if (event.target.closest('button')) return;
     pointerStart = { x: event.clientX, y: event.clientY };
+    stopTimer();
+    frame.setPointerCapture(event.pointerId);
   };
   const onPointerUp = (event) => {
     if (!pointerStart) return;
     const deltaX = event.clientX - pointerStart.x;
     const deltaY = event.clientY - pointerStart.y;
     pointerStart = null;
-    if (Math.abs(deltaX) < 40 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
-    goTo(slideIndex + (deltaX < 0 ? 1 : -1));
+    if (deltaX <= -40 && Math.abs(deltaX) > Math.abs(deltaY)) nextSlide();
+    schedule();
   };
-  const onPointerCancel = () => { pointerStart = null; };
+  const onPointerCancel = () => {
+    pointerStart = null;
+    schedule();
+  };
   const onVisibilityChange = () => schedule();
   frame.querySelector('.home-ad-dots').addEventListener('click', onDotClick);
-  toggle.addEventListener('click', onToggle);
   frame.addEventListener('pointerdown', onPointerDown);
   frame.addEventListener('pointerup', onPointerUp);
   frame.addEventListener('pointercancel', onPointerCancel);
+  track.addEventListener('transitionend', onTransitionEnd);
   document.addEventListener('visibilitychange', onVisibilityChange);
   slideCleanup = () => {
     stopTimer();
     frame.querySelector('.home-ad-dots').removeEventListener('click', onDotClick);
-    toggle.removeEventListener('click', onToggle);
     frame.removeEventListener('pointerdown', onPointerDown);
     frame.removeEventListener('pointerup', onPointerUp);
     frame.removeEventListener('pointercancel', onPointerCancel);
+    track.removeEventListener('transitionend', onTransitionEnd);
     document.removeEventListener('visibilitychange', onVisibilityChange);
     frame.style.removeProperty('--home-ad-slide-duration');
     track.style.removeProperty('width');
+    track.style.removeProperty('transform');
+    track.style.removeProperty('transition');
     [...track.children].forEach((image) => {
       image.style.removeProperty('flex');
       image.style.removeProperty('width');

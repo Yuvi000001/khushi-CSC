@@ -5,6 +5,7 @@ import { api } from '../api.js';
 
 const UPI_ID = CONFIG.UPI_ID || 'paytmqr6n3ktl@ptys';
 let qrCodePromise = null;
+const paymentActionRoots = new WeakSet();
 
 export function formatRupees(amount) {
   return new Intl.NumberFormat('en-IN', {
@@ -124,8 +125,50 @@ async function showPayment(item) {
   }
 }
 
+async function showAnyAmountPayment() {
+  if (!/^[A-Za-z0-9._-]{2,256}@[A-Za-z0-9.-]{2,64}$/.test(UPI_ID)) {
+    toast('भुगतान के लिए UPI ID सही तरह सेट नहीं है।', 'error');
+    return;
+  }
+  const uri = `upi://pay?${new URLSearchParams({
+    pa: UPI_ID,
+    pn: CONFIG.NAME_EN,
+    cu: 'INR',
+    tn: 'Payment to Khushi Online Centre',
+  }).toString()}`;
+  const dialog = openDialog(`
+    <div class="payment-dialog">
+      <p>UPI ऐप में अपनी भुगतान राशि खुद दर्ज करें। इस QR में कोई तय राशि नहीं है।</p>
+      <div class="payment-qr" data-payment-qr role="img" aria-label="अपनी राशि दर्ज करने के लिए UPI QR कोड">QR तैयार हो रहा है...</div>
+      <p class="payment-vpa">UPI ID: <code>${esc(UPI_ID)}</code></p>
+      <a class="btn btn-primary btn-block" href="${esc(uri)}">UPI ऐप खोलें</a>
+      <p class="payment-note">भुगतान से पहले प्राप्तकर्ता जाँचें। आपके बैंक और UPI ऐप की लेन-देन सीमाएं लागू होंगी। भुगतान वेबसाइट पर अपने-आप सत्यापित नहीं होता।</p>
+    </div>`, { title: 'UPI से भुगतान करें' });
+  const qrTarget = dialog.querySelector('[data-payment-qr]');
+  try {
+    const QRCode = await loadQrCode();
+    if (!qrTarget.isConnected) return;
+    qrTarget.textContent = '';
+    new QRCode(qrTarget, {
+      text: uri,
+      width: 240,
+      height: 240,
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  } catch (error) {
+    if (qrTarget.isConnected) qrTarget.textContent = `${error.message} नीचे दिए गए बटन से UPI ऐप खोलें।`;
+  }
+}
+
 export function bindPaymentActions(root) {
+  if (paymentActionRoots.has(root)) return;
+  paymentActionRoots.add(root);
   root.addEventListener('click', (event) => {
+    const anyAmountButton = event.target.closest('[data-any-payment]');
+    if (anyAmountButton && root.contains(anyAmountButton)) {
+      showAnyAmountPayment();
+      return;
+    }
     const button = event.target.closest('[data-payment]');
     if (!button || !root.contains(button)) return;
     showPayment({
