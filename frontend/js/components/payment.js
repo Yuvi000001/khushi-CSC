@@ -48,75 +48,73 @@ function loadRazorpay() {
   return razorpayScriptPromise;
 }
 
-async function showRazorpayPayment(item) {
+async function openRazorpayCheckout(item, amount, triggerButton, form) {
+  triggerButton.disabled = true;
+  try {
+    const Razorpay = await loadRazorpay();
+    const result = await api('/payments/razorpay/orders', {
+      method: 'POST',
+      body: {
+        itemType: item.itemType,
+        itemSlug: item.slug,
+        ...(item.itemType === 'custom' ? { amount } : {}),
+      },
+    });
+    const checkout = new Razorpay({
+      key: result.data.keyId,
+      amount: result.data.amount,
+      currency: result.data.currency,
+      name: CONFIG.NAME_EN,
+      description: `${item.name} - Khushi Online Centre`.slice(0, 255),
+      order_id: result.data.orderId,
+      handler: async (payment) => {
+        try {
+          const verified = await api('/payments/razorpay/verify', { method: 'POST', body: payment });
+          toast(verified.message);
+          if (form) form.innerHTML = `<p class="payment-report-success">${esc(verified.message)}</p>`;
+          else triggerButton.disabled = false;
+        } catch (error) {
+          toast(error.message, 'error');
+          triggerButton.disabled = false;
+        }
+      },
+      modal: { ondismiss: () => { triggerButton.disabled = false; } },
+      theme: { color: '#7A1F2B' },
+    });
+    checkout.on('payment.failed', () => {
+      toast('भुगतान पूरा नहीं हुआ। आप फिर से कोशिश कर सकते हैं।', 'error');
+      triggerButton.disabled = false;
+    });
+    checkout.open();
+  } catch (error) {
+    toast(error.message, 'error');
+    triggerButton.disabled = false;
+  }
+}
+
+function showRazorpayPayment(item, triggerButton) {
+  if (item.itemType !== 'custom') {
+    openRazorpayCheckout(item, Number(item.price), triggerButton);
+    return;
+  }
+
   const title = String(item.name || 'Khushi Online Centre').slice(0, 100);
-  const customAmount = item.itemType === 'custom';
   const dialog = openDialog(`
     <form class="payment-dialog" data-razorpay-form novalidate>
-      ${customAmount
-    ? '<div class="field"><label for="razorpay-amount">भुगतान राशि (₹)</label><input id="razorpay-amount" name="amount" type="number" inputmode="decimal" min="1" max="1000000" step="0.01" required></div>'
-    : `<p class="payment-total">भुगतान राशि <strong>${formatRupees(Number(item.price))}</strong></p>`}
+      <div class="field"><label for="razorpay-amount">भुगतान राशि (₹)</label><input id="razorpay-amount" name="amount" type="number" inputmode="decimal" min="1" max="1000000" step="0.01" required></div>
       <p class="muted small">भुगतान Razorpay के सुरक्षित checkout से होगा। PIN या OTP वेबसाइट पर न लिखें।</p>
-      <div class="field"><label for="razorpay-name">आपका नाम</label><input id="razorpay-name" name="customerName" maxlength="100" autocomplete="name" required></div>
-      <div class="field"><label for="razorpay-mobile">मोबाइल नंबर</label><input id="razorpay-mobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" required></div>
       <button class="btn btn-primary btn-block" type="submit">Razorpay से भुगतान करें</button>
     </form>`, { title: `भुगतान - ${title}` });
   const form = dialog.querySelector('[data-razorpay-form]');
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const formData = Object.fromEntries(new FormData(form));
-    const customerName = formData.customerName.trim();
-    const mobile = formData.mobile.trim();
-    const amount = customAmount ? Number(formData.amount) : Number(item.price);
-    if (customerName.length < 2) return toast('अपना नाम लिखें।', 'error');
-    if (!/^[6-9]\d{9}$/.test(mobile)) return toast('10 अंकों का सही मोबाइल नंबर लिखें।', 'error');
+    const amount = Number(formData.amount);
     if (!Number.isFinite(amount) || amount < 1 || amount > 1000000 || !/^\d+(?:\.\d{1,2})?$/.test(String(formData.amount || amount))) {
       return toast('राशि ₹1 से ₹10,00,000 के बीच और अधिकतम 2 दशमलव अंकों में रखें।', 'error');
     }
     const submitButton = form.querySelector('[type="submit"]');
-    submitButton.disabled = true;
-    try {
-      const Razorpay = await loadRazorpay();
-      const result = await api('/payments/razorpay/orders', {
-        method: 'POST',
-        body: {
-          itemType: item.itemType,
-          itemSlug: item.slug,
-          ...(customAmount ? { amount } : {}),
-          customerName,
-          mobile,
-        },
-      });
-      const checkout = new Razorpay({
-        key: result.data.keyId,
-        amount: result.data.amount,
-        currency: result.data.currency,
-        name: CONFIG.NAME_EN,
-        description: `${title} - Khushi Online Centre`.slice(0, 255),
-        order_id: result.data.orderId,
-        prefill: { name: customerName, contact: mobile },
-        handler: async (payment) => {
-          try {
-            const verified = await api('/payments/razorpay/verify', { method: 'POST', body: payment });
-            toast(verified.message);
-            form.innerHTML = `<p class="payment-report-success">${esc(verified.message)}<br>भुगतान संदर्भ: <strong>${esc(payment.razorpay_payment_id)}</strong></p>`;
-          } catch (error) {
-            toast(error.message, 'error');
-            submitButton.disabled = false;
-          }
-        },
-        modal: { ondismiss: () => { submitButton.disabled = false; } },
-        theme: { color: '#7A1F2B' },
-      });
-      checkout.on('payment.failed', () => {
-        toast('भुगतान पूरा नहीं हुआ। आप फिर से कोशिश कर सकते हैं।', 'error');
-        submitButton.disabled = false;
-      });
-      checkout.open();
-    } catch (error) {
-      toast(error.message, 'error');
-      submitButton.disabled = false;
-    }
+    openRazorpayCheckout(item, amount, submitButton, form);
   });
 }
 
@@ -130,7 +128,7 @@ export function bindPaymentActions(root) {
         itemType: 'custom',
         slug: 'custom-payment',
         name: 'सामान्य भुगतान',
-      });
+      }, anyAmountButton);
       return;
     }
     const razorpayButton = event.target.closest('[data-payment-razorpay]');
@@ -140,7 +138,7 @@ export function bindPaymentActions(root) {
         name: razorpayButton.dataset.paymentTitle,
         itemType: razorpayButton.dataset.paymentType,
         slug: razorpayButton.dataset.paymentSlug,
-      });
+      }, razorpayButton);
       return;
     }
   });
