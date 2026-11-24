@@ -16,11 +16,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", 'https://cdnjs.cloudflare.com'],
+      scriptSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://checkout.razorpay.com'],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", 'https://api.razorpay.com', 'https://checkout.razorpay.com'],
+      frameSrc: ["'self'", 'https://api.razorpay.com', 'https://checkout.razorpay.com'],
       baseUri: ["'self'"],
       frameAncestors: ["'none'"],
       objectSrc: ["'none'"],
@@ -36,9 +37,6 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
-app.use(express.json({ limit: '50kb' }));
-app.use((req, res, next) => { req.body = sanitize(req.body); req.params = sanitize(req.params); req.query = sanitize(req.query); next(); });
-
 app.use('/api', rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 400,
@@ -46,6 +44,14 @@ app.use('/api', rateLimit({
   legacyHeaders: false,
   store: createRateLimitStore('api'),
 }));
+app.post(
+  '/api/webhooks/razorpay',
+  express.raw({ type: 'application/json', limit: '100kb' }),
+  require('./controllers/paymentController').handleRazorpayWebhook,
+);
+app.use(express.json({ limit: '50kb' }));
+app.use((req, res, next) => { req.body = sanitize(req.body); req.params = sanitize(req.params); req.query = sanitize(req.query); next(); });
+
 app.get('/api/health', (req, res) => res.json({ success: true, status: 'ok' }));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/services', require('./routes/serviceRoutes'));
