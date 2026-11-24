@@ -9,6 +9,8 @@ let adSlides = [];
 let adIntervalSeconds = 2;
 let slideTimer = null;
 let slideCleanup = null;
+let slideIndex = 0;
+let slidePaused = false;
 
 export async function render() {
   const services = await fetchServices();
@@ -25,10 +27,19 @@ export async function render() {
     console.error('होम विज्ञापन लोड नहीं हो सके।', error);
   }
   const heroArt = adSlides.length > 1
-    ? `<div class="hero-art home-ad-carousel" role="region" aria-label="खुशी ऑनलाइन सेंटर के विज्ञापन"><div class="home-ad-track" data-home-ad-track>
-        <img src="${esc(adSlides[0].url)}" alt="${esc(adSlides[0].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" fetchpriority="high" decoding="async">
-        <img src="${esc(adSlides[1].url)}" alt="${esc(adSlides[1].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" loading="eager" decoding="async">
-      </div></div>`
+    ? `<div class="hero-art home-ad-carousel" role="region" aria-label="खुशी ऑनलाइन सेंटर के विज्ञापन">
+        <div class="home-ad-viewport">
+          <div class="home-ad-track" data-home-ad-track>
+            ${adSlides.map((slide, index) => `<img src="${esc(slide.url)}" alt="${esc(slide.alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" ${index ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async">`).join('')}
+          </div>
+        </div>
+        <div class="home-ad-controls">
+          <div class="home-ad-dots" role="group" aria-label="विज्ञापन चुनें">
+            ${adSlides.map((_, index) => `<button type="button" class="home-ad-dot" data-home-ad-index="${index}" aria-label="विज्ञापन ${index + 1} दिखाएं"${index === 0 ? ' aria-current="true"' : ''}></button>`).join('')}
+          </div>
+          <button type="button" class="home-ad-toggle" data-home-ad-toggle aria-label="विज्ञापन रोकें">रोकें</button>
+        </div>
+      </div>`
     : adSlides.length === 1
       ? `<div class="hero-art home-ad-carousel" role="region" aria-label="खुशी ऑनलाइन सेंटर का विज्ञापन"><img src="${esc(adSlides[0].url)}" alt="${esc(adSlides[0].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" fetchpriority="high" decoding="async"></div>`
       : `<div class="hero-art" data-img="/images/banners/hero" data-alt="${CONFIG.NAME_HI}"><div class="logo-panel"><img src="/images/logo/logo-512.png" alt="Khushi Online Centre - CSC &amp; Digital Services" width="360" height="360" decoding="async"></div></div>`;
@@ -104,43 +115,92 @@ export function mount(root) {
   if (!track || adSlides.length < 2) {
     return;
   }
+  slideIndex = 0;
+  slidePaused = false;
   frame.style.setProperty('--home-ad-slide-duration', `${Math.min(1200, adIntervalSeconds * 700)}ms`);
-  let index = 0;
-  let transitioning = false;
-  const finishSlide = (event) => {
-    if (event && (event.target !== track || event.propertyName !== 'transform')) return;
-    if (!transitioning) return;
-    transitioning = false;
-    track.style.transition = 'none';
-    track.append(track.firstElementChild);
-    track.style.transform = 'translateX(0)';
-    track.offsetWidth;
-    track.style.transition = '';
-    index = (index + 1) % adSlides.length;
-    const next = track.children[1];
-    const nextSlide = adSlides[(index + 1) % adSlides.length];
-    next.src = nextSlide.url;
-    next.alt = nextSlide.alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन';
+  track.style.width = `${adSlides.length * 100}%`;
+  [...track.children].forEach((image) => {
+    image.style.flex = `0 0 ${100 / adSlides.length}%`;
+    image.style.width = `${100 / adSlides.length}%`;
+  });
+  const dots = [...frame.querySelectorAll('[data-home-ad-index]')];
+  const toggle = frame.querySelector('[data-home-ad-toggle]');
+  const update = () => {
+    track.style.transform = `translateX(-${slideIndex * 100 / adSlides.length}%)`;
+    dots.forEach((dot, index) => {
+      if (index === slideIndex) dot.setAttribute('aria-current', 'true');
+      else dot.removeAttribute('aria-current');
+    });
   };
-  const beforeSlide = () => {
-    const next = track.children[1];
-    if (!next.complete || !next.naturalWidth) return;
-    transitioning = true;
-    track.style.transform = 'translateX(-50%)';
+  const stopTimer = () => {
+    if (slideTimer) window.clearTimeout(slideTimer);
+    slideTimer = null;
   };
-  track.addEventListener('transitionend', finishSlide);
+  const schedule = () => {
+    stopTimer();
+    if (slidePaused || document.hidden) return;
+    slideTimer = window.setTimeout(() => {
+      slideIndex = (slideIndex + 1) % adSlides.length;
+      update();
+      schedule();
+    }, adIntervalSeconds * 1000);
+  };
+  const goTo = (index) => {
+    slideIndex = (index + adSlides.length) % adSlides.length;
+    update();
+    schedule();
+  };
+  const onDotClick = (event) => {
+    const dot = event.target.closest('[data-home-ad-index]');
+    if (dot) goTo(Number(dot.dataset.homeAdIndex));
+  };
+  const onToggle = () => {
+    slidePaused = !slidePaused;
+    toggle.textContent = slidePaused ? 'चलाएं' : 'रोकें';
+    toggle.setAttribute('aria-label', slidePaused ? 'विज्ञापन चलाएं' : 'विज्ञापन रोकें');
+    schedule();
+  };
+  let pointerStart = null;
+  const onPointerDown = (event) => {
+    if (event.target.closest('button')) return;
+    pointerStart = { x: event.clientX, y: event.clientY };
+  };
+  const onPointerUp = (event) => {
+    if (!pointerStart) return;
+    const deltaX = event.clientX - pointerStart.x;
+    const deltaY = event.clientY - pointerStart.y;
+    pointerStart = null;
+    if (Math.abs(deltaX) < 40 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+    goTo(slideIndex + (deltaX < 0 ? 1 : -1));
+  };
+  const onPointerCancel = () => { pointerStart = null; };
+  const onVisibilityChange = () => schedule();
+  frame.querySelector('.home-ad-dots').addEventListener('click', onDotClick);
+  toggle.addEventListener('click', onToggle);
+  frame.addEventListener('pointerdown', onPointerDown);
+  frame.addEventListener('pointerup', onPointerUp);
+  frame.addEventListener('pointercancel', onPointerCancel);
+  document.addEventListener('visibilitychange', onVisibilityChange);
   slideCleanup = () => {
-    track.removeEventListener('transitionend', finishSlide);
+    stopTimer();
+    frame.querySelector('.home-ad-dots').removeEventListener('click', onDotClick);
+    toggle.removeEventListener('click', onToggle);
+    frame.removeEventListener('pointerdown', onPointerDown);
+    frame.removeEventListener('pointerup', onPointerUp);
+    frame.removeEventListener('pointercancel', onPointerCancel);
+    document.removeEventListener('visibilitychange', onVisibilityChange);
     frame.style.removeProperty('--home-ad-slide-duration');
+    track.style.removeProperty('width');
+    [...track.children].forEach((image) => {
+      image.style.removeProperty('flex');
+      image.style.removeProperty('width');
+    });
   };
-  slideTimer = window.setInterval(() => {
-    if (transitioning) return;
-    beforeSlide();
-  }, adIntervalSeconds * 1000);
+  schedule();
 }
 
 export function cleanup() {
-  if (slideTimer) window.clearInterval(slideTimer);
+  if (slideTimer) window.clearTimeout(slideTimer);
   slideTimer = null;
   if (slideCleanup) slideCleanup();
   slideCleanup = null;
