@@ -2,6 +2,7 @@
   .hero-grid { grid-template-columns: 1fr !important; }
   .hero-art { order: -1; max-width: 460px; margin-inline: auto; }
   .hero-art.home-ad-carousel { width: 100%; max-width: 100%; }
+  .home-map-thumb-floating { position: static; flex-basis: min(3in, 100%); width: min(3in, 100%); margin-inline: auto; }
   .detail-grid, .contact-grid, .how, .about-grid { grid-template-columns: 1fr !important; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .stat-boxes { grid-template-columns: repeat(2, 1fr) !important; }
@@ -84,7 +85,7 @@
   .info-cards, .values-grid, .yojana-grid { grid-template-columns: 1fr !important; }
   .stats { grid-template-columns: repeat(2, 1fr) !important; }
   .hero-cta .btn, .cta-row .btn { flex: 1 1 100%; }
-  .home-map-thumb { flex-basis: min(220px, 70vw); width: min(220px, 70vw); height: auto; margin-inline: auto; }
+  .home-map-thumb { flex-basis: min(3in, 85vw); width: min(3in, 85vw); height: auto; margin-inline: auto; }
   .profile-head { flex-wrap: wrap; }
   .kv { grid-template-columns: 1fr; gap: 0; } .kv dt { margin-top: .5rem; }
   /* Tables card ban jati hain */

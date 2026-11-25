@@ -62,7 +62,7 @@ export async function render() {
           <a class="btn btn-wa" href="${CONFIG.WHATSAPP}" target="_blank" rel="noopener">${icon('whatsapp', 18)}WhatsApp करें</a>
           <a class="btn btn-saffron" href="${CONFIG.CALL}">${icon('phone', 18)}कॉल करें</a>
           <button class="btn btn-ghost" type="button" data-any-payment>${icon('rupee', 18)}Razorpay से भुगतान करें</button>
-          <img class="home-map-thumb" src="/images/about/madhya-pradesh-map.jpeg" alt="मध्य प्रदेश का मानचित्र" width="1280" height="698" loading="lazy" decoding="async">
+          <img class="home-map-thumb${adSlides.length ? ' home-map-thumb-floating' : ''}" src="/images/about/madhya-pradesh-map.jpeg" alt="मध्य प्रदेश का मानचित्र" width="1280" height="698" loading="lazy" decoding="async">
         </div>
         <h2 class="quick-h">हमारी प्रमुख सेवाएं</h2>
         <div class="quick-grid">${quick}</div>
