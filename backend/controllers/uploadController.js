@@ -112,7 +112,7 @@ exports.upload = async (req, res, next) => {
       resourceType: result.resource_type,
       format: result.format,
       originalName: f.originalname,
-      mimeType: f.mimetype,
+      mimeType: isImage ? imageType : f.mimetype,
       bytes: result.bytes,
       folder: FOLDERS[kind],
       isPrivate,
@@ -192,8 +192,14 @@ exports.remove = async (req, res, next) => {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ success: false, message: 'फ़ाइल नहीं मिली।' });
     const f = await UploadedFile.findById(req.params.id);
     if (!f) return res.status(404).json({ success: false, message: 'फ़ाइल नहीं मिली।' });
+    if (await Service.exists({ 'documentExamples.imageFileId': f._id })) {
+      return res.status(409).json({ success: false, message: 'यह फोटो किसी सेवा के दस्तावेज़ उदाहरण में इस्तेमाल हो रही है। पहले उसे बदलें या हटाएं।' });
+    }
     if (await Scheme.exists({ imageFileId: f._id })) {
       return res.status(409).json({ success: false, message: 'यह फोटो एक योजना में इस्तेमाल हो रही है। पहले योजना की फोटो बदलें या योजना हटाएं।' });
+    }
+    if (await Scheme.exists({ 'documentExamples.imageFileId': f._id })) {
+      return res.status(409).json({ success: false, message: 'यह फोटो किसी योजना के दस्तावेज़ उदाहरण में इस्तेमाल हो रही है। पहले उसे बदलें या हटाएं।' });
     }
     if (await DownloadForm.exists({ fileId: f._id })) {
       return res.status(409).json({ success: false, message: 'यह फ़ाइल डाउनलोड फॉर्म में इस्तेमाल हो रही है। पहले डाउनलोड फॉर्म हटाएं।' });

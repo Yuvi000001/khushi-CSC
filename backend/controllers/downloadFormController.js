@@ -3,6 +3,7 @@ const { Readable } = require('stream');
 const { pipeline } = require('stream/promises');
 const DownloadForm = require('../models/DownloadForm');
 const UploadedFile = require('../models/UploadedFile');
+const PaymentReport = require('../models/PaymentReport');
 const privateCloudinaryUrl = require('../utils/privateCloudinaryUrl');
 
 const bad = (res, message, status = 404) => res.status(status).json({ success: false, message });
@@ -16,11 +17,14 @@ exports.list = async (req, res, next) => {
       .lean();
     res.json({
       success: true,
-      data: forms.filter((form) => form.fileId).map(({ _id, title, description, fileId }) => ({
-        _id, title, description,
-        fileName: fileId.originalName,
-        mimeType: fileId.mimeType,
-        bytes: fileId.bytes,
+      data: forms.filter((form) => form.fileId).map((form) => ({
+        _id: form._id,
+        title: form.title,
+        description: form.description,
+        price: Number(form.price) || 0,
+        fileName: form.fileId.originalName,
+        mimeType: form.fileId.mimeType,
+        bytes: form.fileId.bytes,
       })),
     });
   } catch (e) { next(e); }
@@ -29,7 +33,7 @@ exports.list = async (req, res, next) => {
 exports.adminList = async (req, res, next) => {
   try {
     const forms = await DownloadForm.find().populate('fileId', FILE_FIELDS).sort({ createdAt: -1 }).lean();
-    res.json({ success: true, data: forms });
+    res.json({ success: true, data: forms.map((form) => ({ ...form, price: Number(form.price) || 0 })) });
   } catch (e) { next(e); }
 };
 
@@ -46,6 +50,7 @@ exports.create = async (req, res, next) => {
     const form = await DownloadForm.create({
       title: req.body.title,
       description: req.body.description || '',
+      price: Number(req.body.price),
       fileId: file._id,
     });
     res.status(201).json({ success: true, message: 'डाउनलोड फॉर्म जोड़ दिया गया।', data: form });
@@ -70,6 +75,21 @@ exports.download = async (req, res, next) => {
     const form = await DownloadForm.findOne({ _id: req.params.id, active: true }).populate('fileId');
     if (!form || !form.fileId) return bad(res, 'डाउनलोड फॉर्म नहीं मिला।');
 
+    if (form.price > 0) {
+      const paymentId = req.query.payment_id;
+      if (typeof paymentId !== 'string' || !/^pay_[A-Za-z0-9]+$/.test(paymentId)) {
+        return bad(res, 'डाउनलोड से पहले Razorpay भुगतान पूरा करें।', 403);
+      }
+      const payment = await PaymentReport.exists({
+        itemType: 'form',
+        itemSlug: String(form._id),
+        amount: form.price,
+        razorpayPaymentId: paymentId,
+        status: 'verified',
+      });
+      if (!payment) return bad(res, 'इस फॉर्म के लिए सफल भुगतान नहीं मिला।', 403);
+    }
+
     const file = form.fileId;
     if (file.resourceType !== 'raw' || !file.isPrivate) {
       return bad(res, 'डाउनलोड फाइल उपलब्ध नहीं है।', 502);
@@ -86,7 +106,7 @@ exports.download = async (req, res, next) => {
       'Content-Type': file.mimeType || 'application/octet-stream',
       'Content-Disposition': `attachment; filename="${fallback}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
       'X-Content-Type-Options': 'nosniff',
-      'Cache-Control': 'public, max-age=300',
+      'Cache-Control': 'private, no-store',
     });
     await pipeline(Readable.fromWeb(upstream.body), res);
   } catch (e) {

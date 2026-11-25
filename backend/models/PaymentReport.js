@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema({
-  itemType: { type: String, enum: ['service', 'scheme', 'custom'], required: true },
+  itemType: { type: String, enum: ['service', 'scheme', 'form', 'custom'], required: true },
   itemSlug: { type: String, required: true, trim: true, maxlength: 80 },
   itemName: { type: String, required: true, trim: true, maxlength: 100 },
   amount: { type: Number, required: true, min: 0.01, max: 1000000 },

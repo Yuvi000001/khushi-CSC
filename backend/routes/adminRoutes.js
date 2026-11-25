@@ -10,6 +10,14 @@ const adminOnly = require('../middleware/adminOnly');
 const validate = require('../middleware/validateRequest');
 router.use(auth, adminOnly);
 
+const exampleImages = () => body('documentExamples').optional().isArray({ max: 8 }).bail().custom((examples) => (
+  examples.every((example) => example
+    && typeof example.name === 'string'
+    && example.name.trim().length >= 2
+    && example.name.trim().length <= 80
+    && typeof example.imageFileId === 'string'
+    && /^[a-f\d]{24}$/i.test(example.imageFileId))
+)).withMessage('हर उदाहरण के लिए नाम और अपलोड की गई फोटो चुनें।');
 const svc = (optional) => {
   const o = (v) => (optional ? v.optional() : v);
   return [
@@ -21,6 +29,7 @@ const svc = (optional) => {
     body('icon').optional().isString().isLength({ max: 30 }),
     body('features').optional().isArray({ max: 12 }),
     body('documents').optional().isArray({ max: 12 }),
+    exampleImages(),
     body('active').optional().isBoolean(),
     body('displayOrder').optional().isInt({ min: 0, max: 9999 }),
   ];
@@ -42,6 +51,7 @@ const schemeFields = (optional) => {
     body('icon').optional().trim().isLength({ max: 30 }),
     body('imageUrl').optional({ checkFalsy: true }).isURL({ protocols: ['https'], require_protocol: true }).isLength({ max: 2048 }),
     body('imageFileId').optional({ nullable: true }).isMongoId(),
+    exampleImages(),
     body('active').optional().isBoolean(),
     body('displayOrder').optional().isInt({ min: 0, max: 9999 }),
   ];
@@ -67,6 +77,9 @@ router.get('/download-forms', downloadForms.adminList);
 router.post('/download-forms', [
   body('title').trim().isLength({ min: 2, max: 120 }).withMessage('फॉर्म का नाम लिखें।'),
   body('description').optional().trim().isLength({ max: 500 }),
+  body('price').isFloat({ min: 0, max: 1000000 }).bail()
+    .custom((value) => /^\d+(?:\.\d{1,2})?$/.test(String(value)))
+    .withMessage('राशि 0 से 10,00,000 रुपये के बीच और अधिकतम 2 दशमलव अंकों में रखें।'),
   body('fileId').isMongoId().withMessage('दस्तावेज़ अपलोड करें।'),
 ], validate, downloadForms.create);
 router.delete('/download-forms/:id', downloadForms.remove);

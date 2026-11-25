@@ -24,7 +24,7 @@ router.post('/', submitLimit, [
 ], validate, c.submit);
 
 router.post('/razorpay/orders', submitLimit, [
-  body('itemType').isIn(['service', 'scheme', 'custom']).withMessage('सेवा या योजना चुनें।'),
+  body('itemType').isIn(['service', 'scheme', 'form', 'custom']).withMessage('सेवा, योजना या फॉर्म चुनें।'),
   body('itemSlug').trim().matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).isLength({ max: 80 }).withMessage('सेवा या योजना नहीं मिली।'),
   body('amount').if(body('itemType').equals('custom'))
     .isFloat({ min: 1, max: 1000000 }).bail()

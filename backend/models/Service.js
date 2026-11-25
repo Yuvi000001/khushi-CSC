@@ -9,6 +9,11 @@ const schema = new mongoose.Schema({
   icon: { type: String, default: 'document' },
   features: [String],
   documents: [String],
+  documentExamples: [{
+    _id: false,
+    name: { type: String, required: true, trim: true, maxlength: 80 },
+    imageFileId: { type: mongoose.Schema.Types.ObjectId, ref: 'UploadedFile', required: true },
+  }],
   active: { type: Boolean, default: true },
   displayOrder: { type: Number, default: 0 },
 }, { timestamps: true });

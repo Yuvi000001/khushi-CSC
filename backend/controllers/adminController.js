@@ -83,17 +83,48 @@ exports.deleteApplication = async (req, res, next) => {
   } catch (e) { next(e); }
 };
 
-const SERVICE_FIELDS = ['name', 'nameEn', 'category', 'description', 'price', 'icon', 'features', 'documents', 'active', 'displayOrder'];
+const SERVICE_FIELDS = ['name', 'nameEn', 'category', 'description', 'price', 'icon', 'features', 'documents', 'documentExamples', 'active', 'displayOrder'];
+const SERVICE_IMAGE_FIELDS = 'secureUrl originalName mimeType isPrivate resourceType';
+const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const documentExamples = (examples = []) => examples.flatMap((example) => {
+  const file = example.imageFileId;
+  return file && !file.isPrivate && file.resourceType === 'image' && IMAGE_MIME_TYPES.includes(file.mimeType)
+    ? [{ name: example.name, imageFileId: file._id, imageUrl: file.secureUrl }]
+    : [];
+});
 const pick = (body) => Object.fromEntries(SERVICE_FIELDS.filter((k) => body[k] !== undefined).map((k) => [k, body[k]]));
 const slugify = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || `service-${Date.now()}`;
 
 exports.allServices = async (req, res, next) => {
-  try { res.json({ success: true, data: await Service.find().sort({ displayOrder: 1, createdAt: 1 }).lean() }); } catch (e) { next(e); }
+  try {
+    const items = await Service.find().populate('documentExamples.imageFileId', SERVICE_IMAGE_FIELDS)
+      .sort({ displayOrder: 1, createdAt: 1 }).lean();
+    res.json({ success: true, data: items.map((item) => ({ ...item, documentExamples: documentExamples(item.documentExamples) })) });
+  } catch (e) { next(e); }
 };
+
+async function validateServiceExamples(data, req, res) {
+  if (!Array.isArray(data.documentExamples) || !data.documentExamples.length) return true;
+  const ids = data.documentExamples.map((example) => example.imageFileId);
+  const files = await UploadedFile.find({
+    _id: { $in: ids },
+    ownerId: req.user._id,
+    folder: 'khushi/gallery',
+    resourceType: 'image',
+    isPrivate: false,
+    mimeType: { $in: IMAGE_MIME_TYPES },
+  }).select('_id').lean();
+  if (files.length !== ids.length) {
+    bad(res, 'दस्तावेज़ की उदाहरण फोटो अपने Admin खाते से अपलोड करें।', 422);
+    return false;
+  }
+  return true;
+}
 
 exports.createService = async (req, res, next) => {
   try {
     const data = pick(req.body);
+    if (!await validateServiceExamples(data, req, res)) return;
     let slug = slugify(req.body.nameEn || req.body.name);
     if (await Service.findOne({ slug })) slug += `-${Date.now().toString(36)}`;
     const s = await Service.create({ ...data, slug });
@@ -104,7 +135,9 @@ exports.createService = async (req, res, next) => {
 exports.updateService = async (req, res, next) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) return bad(res, 'सेवा नहीं मिली।');
-    const s = await Service.findByIdAndUpdate(req.params.id, { $set: pick(req.body) }, { new: true, runValidators: true });
+    const data = pick(req.body);
+    if (!await validateServiceExamples(data, req, res)) return;
+    const s = await Service.findByIdAndUpdate(req.params.id, { $set: data }, { new: true, runValidators: true });
     if (!s) return bad(res, 'सेवा नहीं मिली।');
     res.json({ success: true, message: 'सेवा अपडेट हो गई।', data: s });
   } catch (e) { next(e); }
@@ -115,7 +148,11 @@ exports.deleteService = async (req, res, next) => {
     if (!mongoose.isValidObjectId(req.params.id)) return bad(res, 'सेवा नहीं मिली।');
     const s = await Service.findByIdAndDelete(req.params.id);
     if (!s) return bad(res, 'सेवा नहीं मिली।');
-    res.json({ success: true, message: 'सेवा हटा दी गई।' });
+    res.json({
+      success: true,
+      message: 'सेवा हटा दी गई।',
+      data: { documentExampleFileIds: (s.documentExamples || []).map((example) => example.imageFileId) },
+    });
   } catch (e) { next(e); }
 };
 

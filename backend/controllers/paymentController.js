@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const PaymentReport = require('../models/PaymentReport');
 const Service = require('../models/Service');
 const Scheme = require('../models/Scheme');
+const DownloadForm = require('../models/DownloadForm');
 const razorpay = require('../utils/razorpay');
 
 const bad = (res, message, status = 404) => res.status(status).json({ success: false, message });
@@ -51,6 +52,18 @@ exports.createRazorpayOrder = async (req, res, next) => {
       }
       itemName = 'सामान्य भुगतान';
       itemSlug = 'custom-payment';
+    } else if (req.body.itemType === 'form') {
+      if (!mongoose.isValidObjectId(req.body.itemSlug)) {
+        return bad(res, 'डाउनलोड फॉर्म नहीं मिला।', 404);
+      }
+      const form = await DownloadForm.findOne({ _id: req.body.itemSlug, active: true }).select('title price').lean();
+      if (!form) return bad(res, 'डाउनलोड फॉर्म नहीं मिला।', 404);
+      if (!(form.price > 0) || form.price > 1000000) {
+        return bad(res, 'यह फॉर्म मुफ्त है; भुगतान की आवश्यकता नहीं है।', 400);
+      }
+      itemName = form.title;
+      itemSlug = String(form._id);
+      itemPrice = form.price;
     } else {
       const Model = req.body.itemType === 'service' ? Service : Scheme;
       const item = await Model.findOne({ slug: req.body.itemSlug, active: true }).select('name price').lean();

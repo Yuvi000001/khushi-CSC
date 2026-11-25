@@ -5,6 +5,7 @@ const app = require('./app');
 const connectDB = require('./config/database');
 const Service = require('./models/Service');
 const Scheme = require('./models/Scheme');
+const DownloadForm = require('./models/DownloadForm');
 const OtpChallenge = require('./models/OtpChallenge');
 const SystemState = require('./models/SystemState');
 
@@ -31,6 +32,17 @@ async function seedSchemes() {
   await SystemState.create({ key });
 }
 
+async function setAyushmanFormPrice() {
+  const key = 'ayushman-form-price-v1';
+  if (await SystemState.exists({ key })) return;
+  const result = await DownloadForm.updateMany({
+    title: { $regex: /ayushman|आयुष्मान/i },
+    $or: [{ price: { $exists: false } }, { price: 0 }],
+  }, { $set: { price: 5 } });
+  await SystemState.create({ key });
+  if (result.modifiedCount) console.log('[migration] Ayushman download form price set to ₹5');
+}
+
 (async () => {
   for (const k of ['JWT_SECRET', 'MONGODB_URI', 'CLIENT_URL']) {
     if (!process.env[k]) { console.error(`.env me ${k} set karein`); process.exit(1); }
@@ -46,6 +58,7 @@ async function seedSchemes() {
   await connectRateLimitStore();
   await connectDB();
   await OtpChallenge.init();
+  await setAyushmanFormPrice();
   await seedServices();
   await seedSchemes();
   const port = process.env.PORT || 5000;
