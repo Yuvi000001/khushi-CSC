@@ -433,6 +433,7 @@ const ENGLISH = {
   'राम द्वारा, विदिशा, म.प्र.': 'Ram Dwara, Vidisha, Madhya Pradesh',
   'राम द्वारा, विदिशा, मध्य प्रदेश, India': 'Ram Dwara, Vidisha, Madhya Pradesh, India',
   'मध्य प्रदेश की पहचान': 'Madhya Pradesh at a glance',
+  'मध्य प्रदेश': 'Madhya Pradesh',
   'हमारा केंद्र विदिशा में CSC और MP Online सेवाओं में सहायता करता है।': 'Our centre assists with CSC and MP Online services in Vidisha.',
   'मध्य प्रदेश का राज्य-चिह्न': 'Madhya Pradesh state emblem',
   'मध्य प्रदेश का मानचित्र': 'Map of Madhya Pradesh',

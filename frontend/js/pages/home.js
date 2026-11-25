@@ -54,6 +54,7 @@ export async function render() {
         <ul class="hero-badges">
           <li>${icon('id', 18)}<span>CSC ID : ${CONFIG.CSC_ID}</span></li>
           <li>${icon('map', 18)}<span>${CONFIG.ADDRESS_SHORT}</span></li>
+          <li class="hero-mp-badge"><img src="/images/about/madhya-pradesh-emblem.jpeg" alt="मध्य प्रदेश का राज्य-चिह्न" width="1200" height="896" loading="lazy" decoding="async"><span>मध्य प्रदेश</span></li>
         </ul>
         <div class="hero-cta">
           <a class="btn btn-primary" href="/services" data-link>सेवाएं देखें</a>
