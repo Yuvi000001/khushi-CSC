@@ -3,7 +3,7 @@ const STATUS = { pending: 'प्रतीक्षारत', progress: 'प्
 
 const wrap = (title, body) => `
 <div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;border:1px solid #e6d9c6;border-radius:10px;overflow:hidden">
-  <div style="background:#7A1F2B;color:#fff;padding:16px 20px"><strong>Khushi Online Centre</strong><br><span style="font-size:12px;opacity:.85">CSC ID : 241114270010 | khushionlinecentre11@gmail.com</span></div>
+  <div style="background:#7A1F2B;color:#fff;padding:16px 20px"><strong>Khushi Online Centre</strong><br><span style="font-size:12px;opacity:.85">CSC ID : 24XXXXXXXX10 | khushionlinecentre11@gmail.com</span></div>
   <div style="padding:20px;color:#2A1D1A;line-height:1.7;font-size:15px"><h2 style="margin:0 0 12px;font-size:18px">${esc(title)}</h2>${body}</div>
   <div style="background:#f7f2ea;padding:12px 20px;font-size:12px;color:#6b5b55">यह सरकारी वेबसाइट नहीं है। कृपया Aadhaar नंबर, OTP या Bank PIN किसी को साझा न करें।</div>
 </div>`;
