@@ -22,7 +22,7 @@
 .home-state-map img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
 .hero-copy { position: relative; }
 .home-map-thumb { display: block; flex: 0 0 4in; width: 4in; max-width: 100%; height: auto; align-self: center; margin-inline: auto; object-fit: contain; }
-.home-map-thumb-floating { position: absolute; top: -1.5rem; right: -2in; z-index: 1; }
+.home-map-thumb-floating { position: absolute; top: -1.5rem; right: -2.5in; z-index: 1; }
 .home-ad-carousel { display: flex; flex-direction: column; gap: .55rem; min-width: 0; }
 .home-ad-viewport { width: 100%; aspect-ratio: 3 / 1; overflow: hidden; border-radius: 18px; background: #fff; touch-action: pan-y; }
 .hero-grid.home-ad-grid .home-ad-carousel { width: 100%; order: -1; }
