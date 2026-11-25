@@ -4,14 +4,6 @@ import { icon } from '../icons/icons.js';
 export function renderFooter() {
   document.getElementById('site-footer').innerHTML = `
   <footer class="footer">
-    <div class="footer-contact-strip"><div class="container footer-contact-strip-inner" role="group" aria-label="संपर्क जानकारी">
-      <div class="footer-contact-links">
-        <a href="${CONFIG.CALL}">${icon('phone', 16)}<span>${CONFIG.MOBILE}</span></a>
-        <a href="mailto:${CONFIG.EMAIL}">${icon('mail', 16)}<span>${CONFIG.EMAIL}</span></a>
-        <a href="${CONFIG.MAPS}" target="_blank" rel="noopener">${icon('map', 16)}<span>${CONFIG.ADDRESS_SHORT}</span></a>
-      </div>
-      <div class="footer-brand-tags"><span>MP Online</span><span>Digital India</span></div>
-    </div></div>
     <div class="container footer-grid">
       <div>
         <h3>${CONFIG.NAME_HI}</h3>
