@@ -14,7 +14,7 @@ export const CONFIG = {
   // Kendra ki jaankari
   NAME_HI: 'खुशी ऑनलाइन सेंटर',
   NAME_EN: 'Khushi Online Centre',
-  CSC_ID: '241114270010',
+  CSC_ID: '24XXXXXXXX10',
   OWNER: 'Kop Singh Malviya',
   MOBILE: '7470630571',
   EMAIL: 'khushionlinecentre11@gmail.com',
