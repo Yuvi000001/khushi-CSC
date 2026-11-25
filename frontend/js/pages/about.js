@@ -27,7 +27,7 @@ export function render() {
         <figcaption><strong>मध्य प्रदेश का राज्य-चिह्न</strong><small>केवल पहचान एवं जानकारी हेतु</small></figcaption>
       </figure>
       <figure class="about-state-card" data-reveal>
-        <img src="/images/about/madhya-pradesh-map.jpeg" alt="मध्य प्रदेश का मानचित्र" width="1280" height="698" loading="lazy" decoding="async">
+        <img src="/images/about/madhya-pradesh-map-transparent.png" alt="मध्य प्रदेश का मानचित्र" width="1280" height="698" loading="lazy" decoding="async">
         <figcaption><strong>मध्य प्रदेश का मानचित्र</strong><small>विदिशा, मध्य प्रदेश</small></figcaption>
       </figure>
     </div>

@@ -18,8 +18,10 @@
 .quick:hover { border-color: var(--maroon); transform: translateY(-2px); }
 .quick-ic { color: var(--maroon); }
 .hero-art svg { width: 100%; height: auto; display: block; }
+.home-state-map { display: grid; place-items: center; }
+.home-state-map img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
 .hero-copy { position: relative; }
-.home-map-thumb { display: block; flex: 0 0 3in; width: 3in; max-width: 100%; height: auto; align-self: center; margin-inline: auto; object-fit: contain; mix-blend-mode: multiply; }
+.home-map-thumb { display: block; flex: 0 0 3in; width: 3in; max-width: 100%; height: auto; align-self: center; margin-inline: auto; object-fit: contain; }
 .home-map-thumb-floating { position: absolute; top: -1.5rem; right: 0; z-index: 1; }
 .home-ad-carousel { display: flex; flex-direction: column; gap: .55rem; min-width: 0; }
 .home-ad-viewport { width: 100%; aspect-ratio: 3 / 1; overflow: hidden; border-radius: 18px; background: #fff; touch-action: pan-y; }

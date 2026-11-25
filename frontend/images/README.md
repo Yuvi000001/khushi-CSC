@@ -22,7 +22,7 @@ pan, aadhaar, money, bank, insurance, onlineform, printing, recharge, pdf, ticke
 
 ## frontend/images/about/
 - `madhya-pradesh-emblem.jpeg` -> About page par Madhya Pradesh ka rajya-chihn
-- `madhya-pradesh-map.jpeg` -> About page par Madhya Pradesh ka naksha
+- `madhya-pradesh-map-transparent.png` -> About aur Home page par background-free Madhya Pradesh ka naksha
 
 ## frontend/images/logo/
 Aapka apna logo (logo-1024/512/192.png, favicon-64.png). Logo badalna ho to naya circular logo inhi naamon se replace kar dein.
