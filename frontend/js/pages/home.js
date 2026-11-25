@@ -71,16 +71,6 @@ export async function render() {
     </div>
   </section>
 
-  <section class="strip" aria-label="संपर्क जानकारी">
-    <div class="container strip-grid">
-      <a href="${CONFIG.CALL}">${icon('phone', 20)}<span>${CONFIG.MOBILE}</span></a>
-      <a href="mailto:${CONFIG.EMAIL}">${icon('mail', 20)}<span>${CONFIG.EMAIL}</span></a>
-      <a href="${CONFIG.MAPS}" target="_blank" rel="noopener">${icon('map', 20)}<span>${CONFIG.ADDRESS_SHORT}</span></a>
-      <span>${icon('globe', 20)}<span>MP Online</span></span>
-      <span>${icon('shield', 20)}<span>Digital India</span></span>
-    </div>
-  </section>
-
   <section class="how container">
     <div>
       <h2 data-reveal>कैसे काम करता है?</h2>

@@ -35,9 +35,6 @@
 .home-ad-dot::after { width: 8px; height: 8px; border-radius: 50%; background: #b7a9a4; content: ''; transition: background .2s, transform .2s; }
 .home-ad-dot[aria-current="true"]::after { background: var(--maroon); transform: scale(1.3); }
 .home-ad-dot:focus-visible { outline: 2px solid var(--maroon); outline-offset: 2px; }
-.strip { background: var(--maroon-deep); color: #fff; }
-.strip-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; padding: .9rem 0; }
-.strip-grid > * { display: flex; align-items: center; gap: .6rem; color: #fff; text-decoration: none; font-size: .92rem; } .strip-grid .ic { color: var(--saffron); }
 .how { display: grid; grid-template-columns: 1.4fr 1fr; gap: 2rem; padding: 3rem 0 1rem; align-items: start; }
 .steps { list-style: none; padding: 0; margin: 1rem 0 0; display: flex; align-items: center; gap: .6rem; }
 .step { flex: 1; text-align: center; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1rem .8rem; }

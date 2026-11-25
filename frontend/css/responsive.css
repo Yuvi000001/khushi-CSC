@@ -77,10 +77,7 @@
   .hero-cta .btn:first-child { grid-column: 1 / -1; }
   .quick { min-height: 84px; border-radius: 12px; }
   .svc-tile { min-height: 124px; border-radius: 14px; }
-  .strip-grid > * { min-width: 0; overflow-wrap: anywhere; }
-  .strip-grid > * > span:last-child { min-width: 0; overflow-wrap: anywhere; }
   .footer-grid { grid-template-columns: 1fr; gap: 1.4rem; }
-  .strip-grid { grid-template-columns: 1fr 1fr !important; }
   .steps { flex-direction: column; align-items: stretch !important; } .step-arrow { transform: rotate(90deg); align-self: center; }
   .svc-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .quick-grid { grid-template-columns: repeat(2, 1fr) !important; }
