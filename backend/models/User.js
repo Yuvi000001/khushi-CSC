@@ -6,6 +6,7 @@ const schema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   sessionVersion: { type: Number, default: 0, min: 0 },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  blocked: { type: Boolean, default: false },
   verified: { type: Boolean, default: false },
 }, { timestamps: true });
 schema.index({ role: 1 }, {

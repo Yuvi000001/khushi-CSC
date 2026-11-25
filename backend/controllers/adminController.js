@@ -5,6 +5,8 @@ const Application = require('../models/Application');
 const ContactMessage = require('../models/ContactMessage');
 const UploadedFile = require('../models/UploadedFile');
 const PaymentReport = require('../models/PaymentReport');
+const PasswordReset = require('../models/PasswordReset');
+const OtpChallenge = require('../models/OtpChallenge');
 const { sendMail } = require('../config/mailer');
 const tpl = require('../utils/emailTemplates');
 
@@ -132,6 +134,44 @@ exports.updateEnquiryStatus = async (req, res, next) => {
 
 exports.users = async (req, res, next) => {
   try { res.json({ success: true, data: await User.find().select('-passwordHash').sort({ createdAt: -1 }).limit(300).lean() }); } catch (e) { next(e); }
+};
+
+exports.updateUserBlock = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return bad(res, 'उपयोगकर्ता नहीं मिला।');
+    if (String(req.params.id) === String(req.user._id)) return bad(res, 'आप अपना प्रशासक खाता ब्लॉक नहीं कर सकते।', 403);
+    const user = await User.findById(req.params.id);
+    if (!user) return bad(res, 'उपयोगकर्ता नहीं मिला।');
+    if (user.role === 'admin') return bad(res, 'प्रशासक खाते को ब्लॉक नहीं किया जा सकता।', 403);
+    const updated = await User.findOneAndUpdate(
+      { _id: user._id, role: 'user' },
+      { $set: { blocked: req.body.blocked }, $inc: { sessionVersion: 1 } },
+      { new: true, runValidators: true },
+    );
+    if (!updated) return bad(res, 'उपयोगकर्ता नहीं मिला।');
+    res.json({
+      success: true,
+      message: updated.blocked ? 'उपयोगकर्ता ब्लॉक कर दिया गया।' : 'उपयोगकर्ता अनब्लॉक कर दिया गया।',
+      data: { blocked: updated.blocked },
+    });
+  } catch (e) { next(e); }
+};
+
+exports.deleteUser = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return bad(res, 'उपयोगकर्ता नहीं मिला।');
+    if (String(req.params.id) === String(req.user._id)) return bad(res, 'आप अपना प्रशासक खाता नहीं हटा सकते।', 403);
+    const user = await User.findById(req.params.id);
+    if (!user) return bad(res, 'उपयोगकर्ता नहीं मिला।');
+    if (user.role === 'admin') return bad(res, 'प्रशासक खाता नहीं हटाया जा सकता।', 403);
+    const deleted = await User.findOneAndDelete({ _id: user._id, role: 'user' });
+    if (!deleted) return bad(res, 'उपयोगकर्ता नहीं मिला।');
+    await Promise.all([
+      PasswordReset.deleteMany({ userId: user._id }),
+      OtpChallenge.deleteMany({ email: user.email }),
+    ]);
+    res.json({ success: true, message: 'उपयोगकर्ता खाता हटा दिया गया।' });
+  } catch (e) { next(e); }
 };
 
 exports.files = async (req, res, next) => {

@@ -22,7 +22,7 @@ module.exports = async function auth(req, res, next) {
       return res.status(403).json({ success: false, message: 'सुरक्षा जाँच विफल। पेज रीफ़्रेश करके दोबारा कोशिश करें।' });
     }
     const user = await User.findById(payload.id).select('-passwordHash');
-    if (!user || payload.sessionVersion !== user.sessionVersion) {
+    if (!user || user.blocked || payload.sessionVersion !== user.sessionVersion) {
       return res.status(401).json({ success: false, message: 'सत्र समाप्त हो गया। फिर से लॉगिन करें।' });
     }
     req.user = user;

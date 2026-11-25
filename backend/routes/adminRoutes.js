@@ -73,5 +73,7 @@ router.delete('/download-forms/:id', downloadForms.remove);
 router.get('/enquiries', c.enquiries);
 router.patch('/enquiries/:id/status', [body('status').isIn(['new', 'read', 'replied']).withMessage('अमान्य स्थिति।')], validate, c.updateEnquiryStatus);
 router.get('/users', c.users);
+router.patch('/users/:id/status', [body('blocked').isBoolean().withMessage('खाते की स्थिति चुनें।')], validate, c.updateUserBlock);
+router.delete('/users/:id', c.deleteUser);
 router.get('/files', c.files);
 module.exports = router;

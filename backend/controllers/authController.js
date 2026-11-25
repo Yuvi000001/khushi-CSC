@@ -157,6 +157,7 @@ exports.login = async (req, res, next) => {
     const hash = user ? user.passwordHash : DUMMY_HASH;
     const ok = await bcrypt.compare(password, hash);
     if (!user || !ok) return res.status(401).json({ success: false, message: 'ईमेल या पासवर्ड गलत है।' });
+    if (user.blocked) return res.status(403).json({ success: false, message: 'यह खाता प्रशासक द्वारा ब्लॉक किया गया है।' });
     const result = await startOtp({
       email,
       purpose: 'login',
@@ -189,6 +190,7 @@ exports.verifyLoginOtp = async (req, res, next) => {
     if (!user || user.sessionVersion !== challenge.sessionVersion) {
       return res.status(400).json({ success: false, message: 'OTP गलत है या समाप्त हो गया है।' });
     }
+    if (user.blocked) return res.status(403).json({ success: false, message: 'यह खाता प्रशासक द्वारा ब्लॉक किया गया है।' });
     if (!user.verified) {
       user.verified = true;
       await user.save();
