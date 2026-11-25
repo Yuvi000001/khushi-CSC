@@ -22,7 +22,7 @@ export const CONFIG = {
   CALL: 'tel:7470630571',
   ADDRESS: 'राम द्वारा, विदिशा, मध्य प्रदेश, India',
   ADDRESS_SHORT: 'राम द्वारा, विदिशा, म.प्र.',
-  MAPS: 'https://www.google.com/maps/search/?api=1&query=Gram+Ram+Dwara+Vidisha+Madhya+Pradesh',
+  MAPS: 'https://maps.google.com/maps?q=23.518496%2C77.8112933&z=17&hl=en',
   TIMING: '', // केंद्र का असली समय यहाँ लिखें (जैसे 'सुबह 9:00 - शाम 7:00'); खाली हो तो कहीं नहीं दिखेगा
 
   // images/ folder me asli photo/logo milne par apne aap use hote hain (neeche README dekhein)
