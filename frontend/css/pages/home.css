@@ -10,7 +10,7 @@
 .hero-sub { font-size: 1.12rem; max-width: 46ch; }
 .hero-badges { list-style: none; padding: 0; margin: 1rem 0; display: flex; gap: .6rem 1.4rem; flex-wrap: wrap; }
 .hero-badges li { display: flex; align-items: center; gap: .45rem; font-weight: 500; } .hero-badges .ic { color: var(--maroon); }
-.hero-badges .hero-mp-badge img { width: 30px; height: 24px; object-fit: contain; border: 1px solid var(--line); border-radius: 50%; background: #fff; }
+.hero-badges .hero-mp-badge img { width: 48px; height: 36px; object-fit: contain; border: 1px solid var(--line); border-radius: 50%; background: #fff; }
 .hero-cta { display: flex; gap: .7rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
 .quick-h { font-size: 1.15rem; margin-bottom: .7rem; }
 .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; }
@@ -18,6 +18,8 @@
 .quick:hover { border-color: var(--maroon); transform: translateY(-2px); }
 .quick-ic { color: var(--maroon); }
 .hero-art svg { width: 100%; height: auto; display: block; }
+.home-state-map { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); box-shadow: var(--shadow); }
+.home-state-map img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
 .home-ad-carousel { display: flex; flex-direction: column; gap: .55rem; min-width: 0; }
 .home-ad-viewport { width: 100%; aspect-ratio: 3 / 1; overflow: hidden; border-radius: 18px; background: #fff; touch-action: pan-y; }
 .hero-grid.home-ad-grid .home-ad-carousel { width: 100%; order: -1; }
