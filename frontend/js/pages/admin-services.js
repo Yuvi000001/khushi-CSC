@@ -4,6 +4,13 @@ import { adminShell } from '../components/sidebar.js';
 import { CATS } from '../components/service-card.js';
 import { openDialog, confirmBox, toast } from '../components/notifications.js';
 import { esc } from '../utils.js';
+import {
+  bindDocumentExamples,
+  cleanupRemovedDocumentExamples,
+  collectDocumentExamples,
+  documentExamplesField,
+  removeDocumentExampleFiles,
+} from '../components/document-examples.js';
 
 export const meta = { title: 'सेवा प्रबंधन', desc: '' };
 let items = [];
@@ -34,6 +41,7 @@ function form(s) {
     <div class="field"><label for="s-price">केंद्र शुल्क (₹; खाली छोड़ें तो भुगतान बंद)</label><input id="s-price" name="price" type="number" min="0" max="1000000" step="0.01" value="${Number(s.price) > 0 ? esc(s.price) : ''}"></div>
     <div class="field"><label for="s-f">मुख्य सुविधाएं (हर लाइन में एक)</label><textarea id="s-f" name="features" rows="3">${lines(s.features)}</textarea></div>
     <div class="field"><label for="s-docs">आवश्यक दस्तावेज़ (हर लाइन में एक)</label><textarea id="s-docs" name="documents" rows="3">${lines(s.documents)}</textarea></div>
+    ${documentExamplesField(s.documentExamples || [])}
     <div class="dialog-actions"><button type="button" class="btn btn-ghost" data-close>रद्द करें</button><button class="btn btn-primary" type="submit">सहेजें</button></div></form>`;
 }
 
@@ -41,16 +49,33 @@ async function reload(root) { items = (await api('/admin/services')).data; root.
 
 function editor(s, root) {
   const d = openDialog(form(s), { title: s ? 'सेवा बदलें' : 'नई सेवा जोड़ें', wide: true });
-  d.querySelector('#sf').addEventListener('submit', async (e) => {
+  const serviceForm = d.querySelector('#sf');
+  bindDocumentExamples(serviceForm, d);
+  serviceForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = Object.fromEntries(new FormData(e.target));
     const list = (t) => t.split('\n').map((x) => x.trim()).filter(Boolean);
     if (f.name.trim().length < 2) return toast('सेवा का नाम लिखें।', 'error');
-    const body = { ...f, price: f.price.trim() ? Number(f.price) : null, features: list(f.features), documents: list(f.documents) };
+    const uploadedIds = [];
+    let saved = false;
     try {
+      const examples = await collectDocumentExamples(serviceForm, uploadedIds);
+      const body = {
+        ...f,
+        price: f.price.trim() ? Number(f.price) : null,
+        features: list(f.features),
+        documents: list(f.documents),
+        documentExamples: examples,
+      };
       const r = s ? await api(`/admin/services/${s._id}`, { method: 'PATCH', body }) : await api('/admin/services', { method: 'POST', body: { ...body, displayOrder: items.length + 1 } });
-      toast(r.message); d.close(); await reload(root);
-    } catch (err) { toast(err.message, 'error'); }
+      saved = true;
+      toast(r.message); d.close();
+      if (s) await cleanupRemovedDocumentExamples(s.documentExamples || [], examples);
+      await reload(root);
+    } catch (err) {
+      toast(err.message, 'error');
+      if (!saved) await removeDocumentExampleFiles(uploadedIds);
+    }
   });
 }
 
@@ -64,7 +89,12 @@ export function mount(root) {
     try {
       if (btn.dataset.act === 'edit') editor(s, root);
       else if (btn.dataset.act === 'toggle') { await api(`/admin/services/${s._id}`, { method: 'PATCH', body: { active: !s.active } }); await reload(root); }
-      else if (await confirmBox(`"${s.name}" सेवा हटाएं?`)) { const r = await api(`/admin/services/${s._id}`, { method: 'DELETE' }); toast(r.message); await reload(root); }
+      else if (await confirmBox(`"${s.name}" सेवा हटाएं?`)) {
+        const r = await api(`/admin/services/${s._id}`, { method: 'DELETE' });
+        toast(r.message);
+        await removeDocumentExampleFiles(r.data.documentExampleFileIds || []);
+        await reload(root);
+      }
     } catch (err) { toast(err.message, 'error'); }
   });
 }

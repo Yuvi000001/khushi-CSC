@@ -48,6 +48,28 @@ function loadRazorpay() {
   return razorpayScriptPromise;
 }
 
+async function downloadPaidForm(item, paymentId) {
+  const url = `${CONFIG.API_BASE_URL.replace(/\/$/, '')}/api/forms/${encodeURIComponent(item.slug)}/download?payment_id=${encodeURIComponent(paymentId)}`;
+  const response = await fetch(url, { credentials: 'include' });
+  if (!response.ok) {
+    let result;
+    try { result = await response.json(); } catch { result = null; }
+    throw new Error(result && result.message ? result.message : 'फॉर्म डाउनलोड नहीं हो सका।');
+  }
+  const file = await response.blob();
+  const objectUrl = URL.createObjectURL(file);
+  const link = document.createElement('a');
+  const encodedName = response.headers.get('content-disposition')?.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+  link.download = encodedName
+    ? decodeURIComponent(encodedName)
+    : String(item.fileName || item.name || 'download').split(/[\\/]/).pop();
+  link.href = objectUrl;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+}
+
 async function openRazorpayCheckout(item, amount, triggerButton, form) {
   triggerButton.disabled = true;
   let dialogClosed = false;
@@ -72,8 +94,13 @@ async function openRazorpayCheckout(item, amount, triggerButton, form) {
       handler: async (payment) => {
         try {
           const verified = await api('/payments/razorpay/verify', { method: 'POST', body: payment });
-          paymentVerified = true;
-          toast(verified.message);
+          paymentVerified = verified.data.status === 'verified';
+          if (item.itemType === 'form' && paymentVerified) {
+            await downloadPaidForm(item, payment.razorpay_payment_id);
+            toast('भुगतान सफल हुआ। फॉर्म डाउनलोड शुरू हो गया है।');
+          } else {
+            toast(verified.message);
+          }
           triggerButton.disabled = false;
         } catch (error) {
           toast(error.message, 'error');
@@ -155,6 +182,7 @@ export function bindPaymentActions(root) {
         name: razorpayButton.dataset.paymentTitle,
         itemType: razorpayButton.dataset.paymentType,
         slug: razorpayButton.dataset.paymentSlug,
+        fileName: razorpayButton.dataset.paymentFilename,
       }, razorpayButton);
       return;
     }

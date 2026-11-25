@@ -20,6 +20,10 @@ pan, aadhaar, money, bank, insurance, onlineform, printing, recharge, pdf, ticke
 - `shop.jpg`  -> About page par dukaan ki asli photo
 (Photo 4:3 ho to sabse achhi dikhti hai.)
 
+## frontend/images/about/
+- `madhya-pradesh-emblem.jpeg` -> About page par Madhya Pradesh ka rajya-chihn
+- `madhya-pradesh-map.jpeg` -> About page par Madhya Pradesh ka naksha
+
 ## frontend/images/logo/
 Aapka apna logo (logo-1024/512/192.png, favicon-64.png). Logo badalna ho to naya circular logo inhi naamon se replace kar dein.
 

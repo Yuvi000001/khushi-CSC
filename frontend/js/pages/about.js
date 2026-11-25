@@ -18,6 +18,21 @@ export function render() {
     <div class="about-art" data-img="/images/banners/shop" data-alt="${CONFIG.NAME_HI}"><div class="logo-panel"><img src="/images/logo/logo-512.png" alt="Khushi Online Centre" width="320" height="320" decoding="async"></div></div>
   </div></section>
   <section class="container info-cards">${info.map(([ic, k, v]) => `<div class="info-card" data-reveal><span>${icon(ic, 22)}</span><div><small>${k}</small><strong>${v}</strong></div></div>`).join('')}</section>
+  <section class="container about-state-visuals">
+    <h2 data-reveal>मध्य प्रदेश की पहचान</h2>
+    <p class="muted" data-reveal>हमारा केंद्र विदिशा में CSC और MP Online सेवाओं में सहायता करता है।</p>
+    <div class="about-state-grid">
+      <figure class="about-state-card" data-reveal>
+        <img src="/images/about/madhya-pradesh-emblem.jpeg" alt="मध्य प्रदेश का राज्य-चिह्न" width="1200" height="896" loading="lazy" decoding="async">
+        <figcaption><strong>मध्य प्रदेश का राज्य-चिह्न</strong><small>केवल पहचान एवं जानकारी हेतु</small></figcaption>
+      </figure>
+      <figure class="about-state-card" data-reveal>
+        <img src="/images/about/madhya-pradesh-map.jpeg" alt="मध्य प्रदेश का मानचित्र" width="1280" height="698" loading="lazy" decoding="async">
+        <figcaption><strong>मध्य प्रदेश का मानचित्र</strong><small>विदिशा, मध्य प्रदेश</small></figcaption>
+      </figure>
+    </div>
+    <p class="about-state-note muted small">राज्य-चिह्न और मानचित्र केवल पहचान एवं जानकारी के लिए दिखाए गए हैं। यह सरकारी वेबसाइट नहीं है।</p>
+  </section>
   <section class="container values"><h2 data-reveal>हमारी कार्यशैली</h2>
     <div class="values-grid">${values.map(([ic, t, d]) => `<div class="value" data-reveal><span>${icon(ic, 30)}</span><h3>${t}</h3><p>${d}</p></div>`).join('')}</div>
     <blockquote class="quote" data-reveal>डिजिटल सेवा, हर नागरिक के लिए</blockquote>

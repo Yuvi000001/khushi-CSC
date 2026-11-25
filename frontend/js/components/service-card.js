@@ -43,6 +43,17 @@ export const serviceTile = (s) => `
 
 export const chipsBar = (active = 'all') => `<div class="chips" role="tablist" aria-label="श्रेणी">${CHIPS.map(([k, t]) => `<button type="button" role="tab" class="chip${k === active ? ' active' : ''}" data-chip="${k}" aria-selected="${k === active}">${t}</button>`).join('')}</div>`;
 
+export const documentExamplesGallery = (examples = []) => {
+  if (!examples.length) return '';
+  return `<details class="document-examples">
+    <summary>ज़रूरी दस्तावेज़ की उदाहरण फोटो देखें (${examples.length})</summary>
+    <p class="muted small">ये केवल पहचान के लिए उदाहरण हैं। सही दस्तावेज़ और पात्रता आधिकारिक निर्देशों के अनुसार तय होंगे।</p>
+    <div class="document-example-gallery">${examples.map((example) => `
+      <figure><a href="${esc(example.imageUrl)}" target="_blank" rel="noopener"><img src="${esc(example.imageUrl)}" alt="${esc(example.name)} का उदाहरण" loading="lazy"></a><figcaption>${esc(example.name)}</figcaption></figure>`).join('')}
+    </div>
+  </details>`;
+};
+
 export const yojanaSection = (schemes = DEFAULT_YOJANA) => `
   <section class="yojana" aria-labelledby="yojana-h">
     <div class="container">
@@ -53,7 +64,7 @@ export const yojanaSection = (schemes = DEFAULT_YOJANA) => `
           ${scheme.imageUrl
     ? `<span class="yojana-ic"><img src="${esc(scheme.imageUrl)}" alt="${esc(scheme.name)}" loading="lazy"></span>`
     : `<span class="yojana-ic" data-img="/images/yojana/${esc(scheme.slug)}" data-alt="${esc(scheme.name)}">${YOJANA_ICONS[scheme.icon || scheme.slug] || icon('document', 32)}</span>`}
-          <div><h3 data-i18n-en="${esc(scheme.nameEn || '')}">${esc(scheme.name)}</h3><p data-i18n-en="${esc(scheme.descriptionEn || '')}">${esc(scheme.description || '')}</p><span class="yojana-cat" data-i18n-en="${esc(scheme.categoryEn || '')}">${esc(scheme.category || '')}</span>${paymentAction(scheme, 'scheme')}</div>
+          <div><h3 data-i18n-en="${esc(scheme.nameEn || '')}">${esc(scheme.name)}</h3><p data-i18n-en="${esc(scheme.descriptionEn || '')}">${esc(scheme.description || '')}</p><span class="yojana-cat" data-i18n-en="${esc(scheme.categoryEn || '')}">${esc(scheme.category || '')}</span>${documentExamplesGallery(scheme.documentExamples || [])}${paymentAction(scheme, 'scheme')}</div>
         </article>`).join('')}
       </div>
       <p class="yojana-note">All yojana logos and scheme names are the property of their respective government departments and are used here for identification purposes only.</p>

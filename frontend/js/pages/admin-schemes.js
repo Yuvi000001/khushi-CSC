@@ -3,6 +3,13 @@ import { icon } from '../icons/icons.js';
 import { adminShell } from '../components/sidebar.js';
 import { openDialog, confirmBox, toast } from '../components/notifications.js';
 import { esc } from '../utils.js';
+import {
+  bindDocumentExamples,
+  cleanupRemovedDocumentExamples,
+  collectDocumentExamples,
+  documentExamplesField,
+  removeDocumentExampleFiles,
+} from '../components/document-examples.js';
 
 export const meta = { title: 'योजना प्रबंधन', desc: '' };
 let items = [];
@@ -50,6 +57,7 @@ function form(scheme) {
       <div class="field"><label for="scheme-price">केंद्र शुल्क (₹; खाली छोड़ें तो भुगतान बंद)</label><input id="scheme-price" name="price" type="number" min="0" max="1000000" step="0.01" value="${Number(scheme.price) > 0 ? esc(scheme.price) : ''}"></div>
       <div class="field"><label for="scheme-order">दिखाने का क्रम</label><input id="scheme-order" name="displayOrder" type="number" min="0" max="9999" value="${Number(scheme.displayOrder) || items.length + 1}"></div>
       <div class="field"><label for="scheme-image">योजना की फोटो (JPG, PNG, WebP; अधिकतम 5 MB)</label><input id="scheme-image" name="image" type="file" accept="image/jpeg,image/png,image/webp"></div>
+      ${documentExamplesField(scheme.documentExamples || [])}
     </div>
     <div class="scheme-image-preview" id="scheme-image-preview">${scheme.imageUrl ? `<img src="${esc(scheme.imageUrl)}" alt="${esc(scheme.name)}">` : '<span>फोटो चुनें</span>'}</div>
     <div class="dialog-actions"><button type="button" class="btn btn-ghost" data-close>रद्द करें</button><button class="btn btn-primary" type="submit">सहेजें</button></div>
@@ -64,8 +72,10 @@ function editor(scheme, root) {
   const dialog = openDialog(form(scheme), { title: scheme ? 'योजना बदलें' : 'नई योजना जोड़ें', wide: true });
   const formEl = dialog.querySelector('#scheme-form');
   const imageInput = formEl.elements.image;
+  bindDocumentExamples(formEl, dialog);
   let previewUrl = '';
   let uploadedId = '';
+  const uploadedExampleIds = [];
   let saved = false;
   imageInput.addEventListener('change', () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -101,6 +111,7 @@ function editor(scheme, root) {
     if (!scheme) payload.slug = slugify(payload.nameEn) || `scheme-${Date.now().toString(36)}`;
 
     try {
+      payload.documentExamples = await collectDocumentExamples(formEl, uploadedExampleIds);
       if (file) {
         const upload = new FormData();
         upload.append('kind', 'gallery');
@@ -119,6 +130,7 @@ function editor(scheme, root) {
         try { await api(`/uploads/${scheme.imageFileId}`, { method: 'DELETE' }); }
         catch { toast('योजना सेव हो गई, लेकिन पुरानी फोटो हट नहीं सकी। Admin Files से उसे हटाएं।', 'error'); }
       }
+      if (scheme) await cleanupRemovedDocumentExamples(scheme.documentExamples || [], payload.documentExamples);
       await reload(root);
     } catch (error) {
       toast(error.message, 'error');
@@ -126,6 +138,7 @@ function editor(scheme, root) {
         try { await api(`/uploads/${uploadedId}`, { method: 'DELETE' }); }
         catch { toast('अपलोड हुई फोटो साफ नहीं हो सकी। Admin Files में जाकर उसे हटाएं।', 'error'); }
       }
+      if (!saved) await removeDocumentExampleFiles(uploadedExampleIds);
     } finally { button.disabled = false; }
   });
 }
@@ -150,6 +163,7 @@ export function mount(root) {
           try { await api(`/uploads/${result.data.imageFileId}`, { method: 'DELETE' }); }
           catch { toast('योजना हट गई, लेकिन उसकी फोटो साफ नहीं हो सकी। Admin Files से उसे हटाएं।', 'error'); }
         }
+        await removeDocumentExampleFiles(result.data.documentExampleFileIds || []);
         toast(result.message);
         await reload(root);
       }

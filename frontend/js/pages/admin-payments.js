@@ -36,7 +36,7 @@ async function load(root) {
     if (currentRequest !== requestId) return;
     const rows = data.items.map((payment) => `<tr data-payment-id="${payment._id}">
       <td data-l="ग्राहक">${esc(payment.customerName)}<small>${esc(payment.mobile)}</small></td>
-      <td data-l="सेवा / योजना">${payment.itemType === 'custom' ? esc(payment.itemName) : `${payment.itemType === 'scheme' ? 'योजना' : 'सेवा'}: ${esc(payment.itemName)}`}</td>
+      <td data-l="सेवा / योजना">${payment.itemType === 'custom' ? esc(payment.itemName) : `${payment.itemType === 'form' ? 'फॉर्म' : payment.itemType === 'scheme' ? 'योजना' : 'सेवा'}: ${esc(payment.itemName)}`}</td>
       <td data-l="राशि">₹${esc(Number(payment.amount).toLocaleString('en-IN', { maximumFractionDigits: 2 }))}</td>
       <td data-l="भुगतान तरीका / संदर्भ">${payment.paymentMethod === 'razorpay' ? 'Razorpay' : 'UPI'}<small>${esc(payment.razorpayPaymentId || payment.transactionId)}</small></td>
       <td data-l="स्थिति">${badge(payment.status)}</td>

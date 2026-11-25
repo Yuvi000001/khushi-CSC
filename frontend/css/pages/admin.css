@@ -42,6 +42,13 @@
 .scheme-image-preview { min-height: 90px; display: grid; place-items: center; margin: .5rem 0 1rem; color: var(--muted); background: var(--soft); border-radius: 10px; }
 .scheme-image-preview img { max-width: 100%; max-height: 220px; object-fit: contain; border-radius: 10px; }
 .scheme-form-grid input[type="file"] { width: 100%; padding: .55rem; }
+.document-example-field { grid-column: 1 / -1; margin: .4rem 0 1rem; }
+.document-example-field > label { display: block; font-weight: 600; }
+.document-example-field > p { margin: .25rem 0 .65rem; }
+.document-example-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto; align-items: end; gap: .65rem; padding: .75rem; margin-bottom: .6rem; border: 1px solid var(--line); border-radius: 10px; }
+.document-example-row .field { margin: 0; min-width: 0; }
+.document-example-row input[type="file"] { width: 100%; padding: .45rem; }
+.document-example-preview { display: block; width: 100%; max-width: 180px; max-height: 120px; object-fit: contain; margin-top: .5rem; border-radius: 7px; background: var(--soft); }
 .download-form-upload { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 .9rem; align-items: end; }
 .download-form-upload .field { margin-bottom: .7rem; }
 .download-form-upload .field span { display: block; font-weight: 500; font-size: .92rem; margin-bottom: .3rem; }
@@ -117,5 +124,6 @@
   .ad-admin-card { gap: .55rem; padding: .55rem; }
   .ad-admin-card img { width: 72px; height: 52px; }
   .scheme-form-grid { grid-template-columns: 1fr; }
+  .document-example-row { grid-template-columns: 1fr; }
   .download-form-upload { grid-template-columns: 1fr; }
 }
