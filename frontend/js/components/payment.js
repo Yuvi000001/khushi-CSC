@@ -50,6 +50,8 @@ function loadRazorpay() {
 
 async function openRazorpayCheckout(item, amount, triggerButton, form) {
   triggerButton.disabled = true;
+  let dialogClosed = false;
+  let paymentVerified = false;
   try {
     const Razorpay = await loadRazorpay();
     const result = await api('/payments/razorpay/orders', {
@@ -70,29 +72,44 @@ async function openRazorpayCheckout(item, amount, triggerButton, form) {
       handler: async (payment) => {
         try {
           const verified = await api('/payments/razorpay/verify', { method: 'POST', body: payment });
+          paymentVerified = true;
           toast(verified.message);
-          if (form) form.innerHTML = `<p class="payment-report-success">${esc(verified.message)}</p>`;
-          else triggerButton.disabled = false;
+          triggerButton.disabled = false;
         } catch (error) {
           toast(error.message, 'error');
           triggerButton.disabled = false;
         }
       },
-      modal: { ondismiss: () => { triggerButton.disabled = false; } },
+      modal: {
+        ondismiss: () => {
+          triggerButton.disabled = false;
+          if (item.itemType === 'custom' && !paymentVerified) {
+            showRazorpayPayment(item, triggerButton, amount);
+          }
+        },
+      },
       theme: { color: '#7A1F2B' },
     });
     checkout.on('payment.failed', () => {
       toast('भुगतान पूरा नहीं हुआ। आप फिर से कोशिश कर सकते हैं।', 'error');
       triggerButton.disabled = false;
     });
+    const dialog = form && form.closest('dialog');
+    if (dialog && dialog.open) {
+      dialog.close();
+      dialogClosed = true;
+    }
     checkout.open();
   } catch (error) {
     toast(error.message, 'error');
     triggerButton.disabled = false;
+    if (dialogClosed && item.itemType === 'custom') {
+      showRazorpayPayment(item, triggerButton, amount);
+    }
   }
 }
 
-function showRazorpayPayment(item, triggerButton) {
+function showRazorpayPayment(item, triggerButton, initialAmount = '') {
   if (item.itemType !== 'custom') {
     openRazorpayCheckout(item, Number(item.price), triggerButton);
     return;
@@ -101,7 +118,7 @@ function showRazorpayPayment(item, triggerButton) {
   const title = String(item.name || 'Khushi Online Centre').slice(0, 100);
   const dialog = openDialog(`
     <form class="payment-dialog" data-razorpay-form novalidate>
-      <div class="field"><label for="razorpay-amount">भुगतान राशि (₹)</label><input id="razorpay-amount" name="amount" type="number" inputmode="decimal" min="1" max="1000000" step="0.01" required></div>
+      <div class="field"><label for="razorpay-amount">भुगतान राशि (₹)</label><input id="razorpay-amount" name="amount" type="number" inputmode="decimal" min="1" max="1000000" step="0.01" value="${initialAmount}" required></div>
       <p class="muted small">भुगतान Razorpay के सुरक्षित checkout से होगा। PIN या OTP वेबसाइट पर न लिखें।</p>
       <button class="btn btn-primary btn-block" type="submit">Razorpay से भुगतान करें</button>
     </form>`, { title: `भुगतान - ${title}` });
