@@ -42,7 +42,7 @@ export async function render() {
       </div>`
     : adSlides.length === 1
       ? `<div class="hero-art home-ad-carousel" role="region" aria-label="खुशी ऑनलाइन सेंटर का विज्ञापन"><img src="${esc(adSlides[0].url)}" alt="${esc(adSlides[0].alt || 'खुशी ऑनलाइन सेंटर का विज्ञापन')}" fetchpriority="high" decoding="async"></div>`
-      : `<div class="hero-art home-state-map"><img src="/images/about/madhya-pradesh-map.jpeg" alt="मध्य प्रदेश का मानचित्र" width="1280" height="698" decoding="async"></div>`;
+      : `<div class="hero-art" data-img="/images/banners/hero" data-alt="${CONFIG.NAME_HI}"><div class="logo-panel"><img src="/images/logo/logo-512.png" alt="Khushi Online Centre - CSC &amp; Digital Services" width="360" height="360" decoding="async"></div></div>`;
   const quick = services.slice(0, 8).map((s) => `
     <a class="quick" href="/services/${esc(s.slug)}" data-link><span class="quick-ic">${icon(s.icon, 24)}</span><span data-i18n-en="${esc(s.nameEn || '')}">${esc(s.name)}</span></a>`).join('');
   return `
@@ -62,6 +62,7 @@ export async function render() {
           <a class="btn btn-wa" href="${CONFIG.WHATSAPP}" target="_blank" rel="noopener">${icon('whatsapp', 18)}WhatsApp करें</a>
           <a class="btn btn-saffron" href="${CONFIG.CALL}">${icon('phone', 18)}कॉल करें</a>
           <button class="btn btn-ghost" type="button" data-any-payment>${icon('rupee', 18)}Razorpay से भुगतान करें</button>
+          <img class="home-map-thumb" src="/images/about/madhya-pradesh-map.jpeg" alt="मध्य प्रदेश का मानचित्र" width="1280" height="698" loading="lazy" decoding="async">
         </div>
         <h2 class="quick-h">हमारी प्रमुख सेवाएं</h2>
         <div class="quick-grid">${quick}</div>

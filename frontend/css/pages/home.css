@@ -18,8 +18,7 @@
 .quick:hover { border-color: var(--maroon); transform: translateY(-2px); }
 .quick-ic { color: var(--maroon); }
 .hero-art svg { width: 100%; height: auto; display: block; }
-.home-state-map { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); box-shadow: var(--shadow); }
-.home-state-map img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
+.home-map-thumb { display: block; flex: 0 0 140px; width: 140px; height: 76px; align-self: center; object-fit: contain; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
 .home-ad-carousel { display: flex; flex-direction: column; gap: .55rem; min-width: 0; }
 .home-ad-viewport { width: 100%; aspect-ratio: 3 / 1; overflow: hidden; border-radius: 18px; background: #fff; touch-action: pan-y; }
 .hero-grid.home-ad-grid .home-ad-carousel { width: 100%; order: -1; }

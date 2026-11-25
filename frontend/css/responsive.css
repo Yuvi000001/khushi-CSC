@@ -84,6 +84,7 @@
   .info-cards, .values-grid, .yojana-grid { grid-template-columns: 1fr !important; }
   .stats { grid-template-columns: repeat(2, 1fr) !important; }
   .hero-cta .btn, .cta-row .btn { flex: 1 1 100%; }
+  .home-map-thumb { flex-basis: min(220px, 70vw); width: min(220px, 70vw); height: auto; margin-inline: auto; }
   .profile-head { flex-wrap: wrap; }
   .kv { grid-template-columns: 1fr; gap: 0; } .kv dt { margin-top: .5rem; }
   /* Tables card ban jati hain */
