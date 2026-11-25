@@ -10,6 +10,7 @@ const sanitize = require('mongo-sanitize');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
+app.disable('x-powered-by');
 app.set('trust proxy', 1); // Render / Nginx जैसे proxy के पीछे सही IP के लिए
 
 app.use(helmet({
@@ -29,6 +30,11 @@ app.use(helmet({
     },
   },
 }));
+
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
 
 const origins = (process.env.CLIENT_URL || '').split(',').map((s) => s.trim().replace(/\/$/, '')).filter(Boolean);
 app.use(cors({

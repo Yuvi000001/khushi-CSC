@@ -51,7 +51,7 @@ test('signup creates an account only after email OTP verification', async () => 
   try {
     const registrationRes = response();
     await authController.register({
-      body: { name: 'Test User', email: 'test@example.com', mobile: '9876543210', password: 'valid-password' },
+      body: { name: 'Test User', email: 'test@example.com', mobile: '9876543210', password: 'valid-password', role: 'admin' },
     }, registrationRes, (error) => { throw error; });
     assert.equal(registrationRes.statusCode, 202);
     assert.equal(createdData, undefined);
@@ -73,6 +73,7 @@ test('signup creates an account only after email OTP verification', async () => 
       email: 'test@example.com',
       verified: true,
     });
+    assert.equal(createdData.role, undefined);
     assert.equal(verifyRes.statusCode, 201);
     assert.equal(verifyRes.cookieOptions.httpOnly, true);
   } finally {
@@ -87,5 +88,23 @@ test('signup creates an account only after email OTP verification', async () => 
       if (previousEnv[key] === undefined) delete process.env[key];
       else process.env[key] = previousEnv[key];
     });
+  }
+});
+
+test('signup rejects an email or mobile number already used by another account', async () => {
+  const previousFindOne = User.findOne;
+  User.findOne = async (query) => {
+    assert.deepEqual(query, { $or: [{ email: 'new@example.com' }, { mobile: '9876543210' }] });
+    return { _id: 'existing-user' };
+  };
+  try {
+    const res = response();
+    await authController.register({
+      body: { name: 'New User', email: 'new@example.com', mobile: '9876543210', password: 'valid-password' },
+    }, res, (error) => { throw error; });
+    assert.equal(res.statusCode, 409);
+    assert.match(res.data.message, /ईमेल या मोबाइल नंबर/);
+  } finally {
+    User.findOne = previousFindOne;
   }
 });

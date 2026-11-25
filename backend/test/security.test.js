@@ -8,6 +8,7 @@ const User = require('../models/User');
 const OtpChallenge = require('../models/OtpChallenge');
 const authController = require('../controllers/authController');
 const auth = require('../middleware/auth');
+const app = require('../app');
 const {
   JWT_ALGORITHM, JWT_ISSUER, JWT_AUDIENCE, getJwtSecret,
 } = require('../config/jwt');
@@ -155,4 +156,17 @@ test('only JPEG, PNG, and WebP image extensions are accepted', () => {
   assert.equal(IMAGE_EXTENSIONS['.webp'], 'image/webp');
   assert.equal(IMAGE_EXTENSIONS['.svg'], undefined);
   assert.equal(IMAGE_MIME_TYPES.has('image/svg+xml'), false);
+});
+
+test('API responses are not cacheable and hide the Express fingerprint', async () => {
+  const server = app.listen(0);
+  try {
+    await new Promise((resolve) => server.once('listening', resolve));
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/api/health`);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.headers.get('x-powered-by'), null);
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+  }
 });

@@ -9,6 +9,11 @@ const User = require('../models/User');
   if (ADMIN_PASSWORD.length < 10 || ADMIN_PASSWORD === 'choose_a_strong_password') { console.error('Kam se kam 10 akshar ka mazboot password rakhein'); process.exit(1); }
   await mongoose.connect(MONGODB_URI);
   const email = ADMIN_EMAIL.toLowerCase().trim();
+  const admins = await User.find({ role: 'admin' }).select('email').lean();
+  if (admins.length > 1) throw new Error('Database me ek se zyada admin hain. Pehle sirf ek admin account rakhein.');
+  if (admins.length === 1 && admins[0].email !== email) {
+    throw new Error('Ek admin account pehle se maujood hai. Dusra admin banana allowed nahi hai.');
+  }
   const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 12);
   const existing = await User.findOne({ email });
   if (existing) { existing.role = 'admin'; existing.passwordHash = passwordHash; existing.verified = true; await existing.save(); console.log('Admin updated:', email); }

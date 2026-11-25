@@ -102,8 +102,8 @@ async function consumeOtp(email, purpose, code) {
 exports.register = async (req, res, next) => {
   try {
     const { name, email, mobile, password } = req.body;
-    if (await User.findOne({ email })) {
-      return res.status(409).json({ success: false, message: 'इस ईमेल से खाता पहले से बना है। कृपया लॉगिन करें।' });
+    if (await User.findOne({ $or: [{ email }, { mobile }] })) {
+      return res.status(409).json({ success: false, message: 'इस ईमेल या मोबाइल नंबर से खाता पहले से बना है। कृपया लॉगिन करें।' });
     }
     const passwordHash = await bcrypt.hash(password, 12);
     const result = await startOtp({
@@ -138,7 +138,7 @@ exports.verifySignupOtp = async (req, res, next) => {
       user = await User.create({ ...challenge.signupData.toObject(), email, verified: true });
     } catch (error) {
       if (error.code === 11000) {
-        return res.status(409).json({ success: false, message: 'इस ईमेल से खाता पहले से बना है। कृपया लॉगिन करें।' });
+        return res.status(409).json({ success: false, message: 'इस ईमेल या मोबाइल नंबर से खाता पहले से बना है। कृपया लॉगिन करें।' });
       }
       throw error;
     }
